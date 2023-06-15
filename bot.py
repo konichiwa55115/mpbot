@@ -21,7 +21,7 @@ def _telegram_file(client, message):
   except FileNotFoundError: 
     pass  
   user_id = message.from_user.id 
-  sent_message = message.reply_text('جار المعالجة \n\n , quote=True)
+  sent_message = message.reply_text('جار المعالجة ', quote=True)
   file = message.voice
   file_path = message.download(file_name="entry")
 
