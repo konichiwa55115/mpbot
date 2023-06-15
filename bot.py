@@ -5,7 +5,7 @@ bot = Client(
     "myfirs",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6032076608:AAEwM7ZpCKKXIdw5TVJVu5jxND2vklkog2U"
+    bot_token="5848326557:AAGHzvPErt9hr6NFYn7TNDOaXQiVXvR213c"
 )
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
@@ -13,25 +13,23 @@ def command1(bot,message):
     
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video )
 def _telegram_file(client, message):
-  try: 
-    with open("./downloads/entry", 'r') as fh:
-      
-            sent_message = message.reply_text('هناك عملية يتم الآن . أرسل الصوتية بعد مدة من فضلك', quote=True)
-            return
-  except FileNotFoundError: 
-    pass  
+
+  if os.path.isdir("./downloads/") :
+        sent_message = message.reply_text('هناك عملية يتم الآن . أرسل الصوتية أو الفيديو بعد مدة من فضلك', quote=True)
+        return
+  else :
+        pass
   user_id = message.from_user.id 
   sent_message = message.reply_text('جار المعالجة ', quote=True)
   file = message.voice
-  file_path = message.download(file_name="entry")
-
-    # Execute speech.py script with entry file
-  subprocess.call(['ffmpeg', '-i',"./downloads/entry",'-q:a','0','-map','a',"result.mp3",'-y' ])
+  file_path = message.download(file_name="./downloads/")
+  head, tail = os.path.split(file_path)
+  subprocess.call(['ffmpeg', '-i', file_path,'-q:a','0','-map','a',tail+".mp3",'-y' ])
     # Upload transcription file to user
-  with open("result.mp3", 'rb') as f:
+  with open(tail+".mp3", 'rb') as f:
         bot.send_audio(message.chat.id, f)
-  subprocess.call(['sudo','rm','-r',"./downloads/entry"]) 
-  subprocess.call(['sudo','rm','-r',"result.mp3"]) 
+  subprocess.call(['sudo','rm','-r',head]) 
+  subprocess.call(['sudo','rm','-r',tail+".mp3"]) 
 
  
  
