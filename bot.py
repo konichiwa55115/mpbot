@@ -9,9 +9,9 @@ bot = Client(
 )
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
-    bot.send_message(message.chat.id, " السلام عليكم أنا فصل الموسيقا , فقط أرسل الفيديو هنا\n\n  لبقية البوتات هنا \n\n https://t.me/ibnAlQyyim/1120 ",disable_web_page_preview=True)
+    bot.send_message(message.chat.id, " السلام عليكم أنا بوت الصوتيات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/ibnAlQyyim/1120 ",disable_web_page_preview=True)
     
-@bot.on_message(filters.private & filters.incoming & filters.voice )
+@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video )
 def _telegram_file(client, message):
   try: 
     with open("./downloads/entry", 'r') as fh:
@@ -21,7 +21,7 @@ def _telegram_file(client, message):
   except FileNotFoundError: 
     pass  
   user_id = message.from_user.id 
-  sent_message = message.reply_text('جار الفصل \n\n قال رسول الله ﷺ  لَيَكونَنَّ مِن أُمَّتي أقْوامٌ يَسْتَحِلُّونَ الحِرَ والحَرِيرَ، والخَمْرَ والمَعازِفَ، ولَيَنْزِلَنَّ أقْوامٌ إلى جَنْبِ عَلَمٍ، يَرُوحُ عليهم بسارِحَةٍ لهمْ، يَأْتِيهِمْ -يَعْنِي الفقِيرَ- لِحاجَةٍ، فيَقولونَ: ارْجِعْ إلَيْنا غَدًا، فيُبَيِّتُهُمُ اللَّهُ، ويَضَعُ العَلَمَ، ويَمْسَخُ آخَرِينَ قِرَدَةً وخَنازِيرَ إلى يَومِ القِيامَةِ. ( صحيح البخاري)', quote=True)
+  sent_message = message.reply_text('جار المعالجة \n\n , quote=True)
   file = message.voice
   file_path = message.download(file_name="entry")
 
@@ -32,7 +32,7 @@ def _telegram_file(client, message):
         bot.send_audio(message.chat.id, f)
   subprocess.call(['sudo','rm','-r',"./downloads/entry"]) 
   subprocess.call(['sudo','rm','-r',"result.mp3"]) 
- 
+
  
  
 
