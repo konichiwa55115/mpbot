@@ -14,11 +14,6 @@ def command1(bot,message):
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video )
 def _telegram_file(client, message):
 
-  if os.path.isdir("./downloads/") :
-        sent_message = message.reply_text('هناك عملية يتم الآن . أرسل الصوتية أو الفيديو بعد مدة من فضلك', quote=True)
-        return
-  else :
-        pass
   user_id = message.from_user.id 
   sent_message = message.reply_text('جار المعالجة ', quote=True)
   file = message.voice
@@ -28,8 +23,8 @@ def _telegram_file(client, message):
     # Upload transcription file to user
   with open(tail+".mp3", 'rb') as f:
         bot.send_audio(message.chat.id, f)
-  subprocess.call(['sudo','rm','-r',head]) 
-  subprocess.call(['sudo','rm','-r',tail+".mp3"]) 
+  subprocess.call(['unlink',file_path]) 
+  subprocess.call(['unlink',tail+".mp3"]) 
 
  
  
