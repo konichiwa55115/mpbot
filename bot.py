@@ -1,32 +1,193 @@
 import os
 from pyrogram import Client, filters
-import subprocess
+from os import system as cmd
+from pyrogram.types import InlineKeyboardMarkup , InlineKeyboardButton , ReplyKeyboardMarkup , CallbackQuery , ForceReply
+import shutil
 bot = Client(
-    "myfirs",
+    "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6032076608:AAH6hULAH_uzzjSY_Rq83eUP0x_wRxZWH0Y"
+    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
+
+CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
+CHOOSE_UR_AUDIO_MODE_BUTTONS = [
+    [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],
+     [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
+          [InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
+     [InlineKeyboardButton("التحويل إلى mp3 ",callback_data="conv")]
+
+]
+
+CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
+CHOOSE_UR_AMPLE_MODE_BUTTONS = [
+    [InlineKeyboardButton("5db",callback_data="mod1")],
+     [InlineKeyboardButton("10db",callback_data="mod2")],
+     [InlineKeyboardButton("15db",callback_data="mod3")],
+     [InlineKeyboardButton("20db",callback_data="mod4")],
+     [InlineKeyboardButton("25db",callback_data="mod5")]
+]
+CHOOSE_UR_FILE_MODE = "اختر نوع ملفك "
+CHOOSE_UR_FILE_MODE_BUTTONS = [
+    [InlineKeyboardButton("صوتية",callback_data="aud")],
+     [InlineKeyboardButton("فيديو ",callback_data="vid")]
+]
+
+CHOOSE_UR_FILETRIM_MODE = "اختر نوع ملفك "
+CHOOSE_UR_FILETRIM_MODE_BUTTONS = [
+    [InlineKeyboardButton("صوتية",callback_data="audtrim")],
+     [InlineKeyboardButton("فيديو ",callback_data="vidtrim")]
+     ]
+
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
     bot.send_message(message.chat.id, " السلام عليكم أنا بوت الصوتيات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/ibnAlQyyim/1120 ",disable_web_page_preview=True)
     
-@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video )
+@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document )
 def _telegram_file(client, message):
-
-  user_id = message.from_user.id 
-  sent_message = message.reply_text('جار المعالجة ', quote=True)
-  file = message.voice
+  global user_id
+  user_id = message.from_user.id
+  global messageid
+  messageid = message.id
+  file = message
+  global file_path
   file_path = message.download(file_name="./downloads/")
-  head, tail = os.path.split(file_path)
-  subprocess.call(['ffmpeg', '-i', file_path,'-q:a','0','-map','a',tail+".mp3",'-y' ])
-    # Upload transcription file to user
-  with open(tail+".mp3", 'rb') as f:
-        bot.send_audio(message.chat.id, f)
-  subprocess.call(['unlink',file_path]) 
-  subprocess.call(['unlink',tail+".mp3"]) 
+  global filename
+  filename = os.path.basename(file_path)
+  nom,ex = os.path.splitext(filename)
+  global mp4file
+  mp4file = f"{nom}.mp4"
+  global mp3file
+  mp3file = f"{nom}.mp3"
+  message.reply(
+             text = CHOOSE_UR_AUDIO_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AUDIO_MODE_BUTTONS)
 
- 
- 
+        )
+
+
+
+
+@bot.on_callback_query()
+def callback_query(CLIENT,CallbackQuery):
+  global amplemode 
+  if CallbackQuery.data == "amplifyaud":
+     CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_AMPLE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AMPLE_MODE_BUTTONS)
+
+        )
+
+  elif CallbackQuery.data == "comp":
+   CallbackQuery.edit_message_text(
+      
+      "جار الضغط"
+   )     
+   cmd(f''' ffmpeg -i "{file_path}" -b:a 50k "{mp3file}" -y ''' )
+   with open(mp3file, 'rb') as f:
+         bot.send_audio(user_id, f)
+   cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif CallbackQuery.data == "conv" :
+   CallbackQuery.edit_message_text(
+      
+      "جار التحويل "
+   ) 
+   cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')
+   with open(mp3file, 'rb') as f:
+        bot.send_audio(user_id, f)
+   cmd(f'''unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif CallbackQuery.data == "trim" :
+   CallbackQuery.edit_message_text(
+      
+      "الآن أرسل نقطة البداية والنهاية بهذه الصورة \n \n  hh:mm:ss/hh:mm:ss"
+   ) 
+  elif CallbackQuery.data == "mod1":
+      amplemode = 5
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
+
+        )
+  elif CallbackQuery.data == "mod2":
+      amplemode = 10
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
+
+        )
+  elif CallbackQuery.data == "mod3":
+      amplemode = 15
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
+
+        )
+  elif CallbackQuery.data == "mod4" :
+      amplemode = 20
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
+
+        )
+  elif CallbackQuery.data == "mod5":
+      amplemode = 25
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
+
+        )
+
+  elif CallbackQuery.data == "aud":
+    CallbackQuery.edit_message_text(
+     "جار التضخيم "
+      )
+    cmd(f'''ffmpeg -i "{file_path}" -filter:a volume={amplemode}dB "{filename}"''')
+    with open(filename, 'rb') as f:
+        bot.send_audio(user_id, f)
+    cmd(f'''unlink "{filename}" && unlink "{file_path}"''')
+  
+  elif CallbackQuery.data == "vid":
+    CallbackQuery.edit_message_text(
+     "جار التضخيم "
+      )
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/{mp3file}" -y ''')
+    cmd(f'''ffmpeg -i "./downloads/{mp3file}" -filter:a volume={amplemode}dB "{mp3file}"''')
+    cmd(f'''ffmpeg -i "{file_path}" -i "{mp3file}" -c:v copy -map 0:v:0 -map 1:a:0 "{filename}"''')
+    with open(filename, 'rb') as f:
+        bot.send_video(user_id, f)
+    cmd(f'''unlink "{filename}" && unlink "{file_path}"''')    
+  elif CallbackQuery.data == "audtrim":
+    CallbackQuery.edit_message_text(
+     "جار القص"
+      )  
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/{mp3file}" -y ''')
+    cmd(f'''ffmpeg -i "./downloads/{mp3file}" -ss {strt_point} -to {end_point} -c copy "{mp3file}" -y ''')
+    with open(mp3file, 'rb') as f:
+            bot.send_audio(user_id, f)
+    cmd(f'''unlink "{file_path}" && unlink "{mp3file}" && unlink "./downloads/{mp3file}"''')
+  elif CallbackQuery.data == "vidtrim":
+    CallbackQuery.edit_message_text(
+     "جار القص"
+      )  
+    cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -to {end_point} -c copy "{mp4file}" -y ''')
+    with open(mp4file, 'rb') as f:
+            bot.send_video(user_id, f)
+    cmd(f'''unlink "{file_path}" && unlink "{mp4file}" ''')
+
+@bot.on_message(filters.private & filters.text)
+def _start_point(client, message):
+          endstart = message.text 
+          strt, end = os.path.split(endstart)
+          global strt_point
+          strt_point=strt 
+          global end_point
+          end_point = end
+          message.reply(
+             text = CHOOSE_UR_FILETRIM_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILETRIM_MODE_BUTTONS)
+
+        )
+          
+
 
 bot.run()
