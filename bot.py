@@ -41,7 +41,7 @@ CHOOSE_UR_FILETRIM_MODE_BUTTONS = [
 
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
-    bot.send_message(message.chat.id, " السلام عليكم أنا بوت الصوتيات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/ibnAlQyyim/1120 ",disable_web_page_preview=True)
+    bot.send_message(message.chat.id, " السلام عليكم أنا بوت متعدد الاستخدامات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/ibnAlQyyim/1120 ",disable_web_page_preview=True)
     
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document )
 def _telegram_file(client, message):
