@@ -15,7 +15,8 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],
      [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
           [InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
-     [InlineKeyboardButton("التحويل إلى mp3 ",callback_data="conv")]
+     [InlineKeyboardButton("التحويل إلى mp3 ",callback_data="conv")],
+     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
 
 ]
 
@@ -41,19 +42,20 @@ CHOOSE_UR_FILETRIM_MODE_BUTTONS = [
 
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
-    bot.send_message(message.chat.id, " السلام عليكم أنا بوت متعدد الاستخدامات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/ibnAlQyyim/1120 ",disable_web_page_preview=True)
+    bot.send_message(message.chat.id, " السلام عليكم أنا بوت الصوتيات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/ibnAlQyyim/1120 ",disable_web_page_preview=True)
     
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document )
 def _telegram_file(client, message):
   global user_id
   user_id = message.from_user.id
-  global messageid
-  messageid = message.id
+  global file
   file = message
   global file_path
   file_path = message.download(file_name="./downloads/")
   global filename
   filename = os.path.basename(file_path)
+  global nom
+  global ex
   nom,ex = os.path.splitext(filename)
   global mp4file
   mp4file = f"{nom}.mp4"
@@ -97,9 +99,10 @@ def callback_query(CLIENT,CallbackQuery):
         bot.send_audio(user_id, f)
    cmd(f'''unlink "{file_path}" && unlink "{mp3file}" ''')
   elif CallbackQuery.data == "trim" :
+   file.reply_text("الآن أرسل نقطة البداية والنهاية بهذه الصورة \n\n hh:mm:ss/hh:mm:ss",reply_markup=ForceReply(True))
    CallbackQuery.edit_message_text(
       
-      "الآن أرسل نقطة البداية والنهاية بهذه الصورة \n \n  hh:mm:ss/hh:mm:ss"
+      "👇"
    ) 
   elif CallbackQuery.data == "mod1":
       amplemode = 5
@@ -173,21 +176,34 @@ def callback_query(CLIENT,CallbackQuery):
     with open(mp4file, 'rb') as f:
             bot.send_video(user_id, f)
     cmd(f'''unlink "{file_path}" && unlink "{mp4file}" ''')
+  elif CallbackQuery.data == "renm":
+    file.reply_text("الآن أدخل الاسم الجديد ",reply_markup=ForceReply(True))
+    CallbackQuery.edit_message_text(
+      
+      "👇"
+   ) 
 
-@bot.on_message(filters.private & filters.text)
-def _start_point(client, message):
-          endstart = message.text 
-          strt, end = os.path.split(endstart)
+
+@bot.on_message(filters.private & filters.reply & filters.regex('/'))
+async def refunc(client,message):
+   if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          endstart = message.text ;await message.delete()
           global strt_point
-          strt_point=strt 
           global end_point
+          strt, end = os.path.split(endstart);strt_point=strt 
           end_point = end
-          message.reply(
+          await message.reply(
              text = CHOOSE_UR_FILETRIM_MODE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILETRIM_MODE_BUTTONS)
 
         )
-          
-
-
+@bot.on_message(filters.private & filters.reply )
+async def refunc(client,message):
+   if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          newname = message.text ;await message.delete()
+          newfile = f"{newname}{ex}"
+          cmd(f'''mv "{file_path}" "{newfile}"''')
+          with open(newfile, 'rb') as f:
+            await bot.send_document(user_id, f)
+          cmd(f'''unlink "{newfile}" ''')
 bot.run()
