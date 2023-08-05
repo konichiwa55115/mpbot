@@ -163,11 +163,10 @@ def callback_query(CLIENT,CallbackQuery):
     CallbackQuery.edit_message_text(
      "جار القص"
       )  
-    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/{mp3file}" -y ''')
-    cmd(f'''ffmpeg -i "./downloads/{mp3file}" -ss {strt_point} -to {end_point} -c copy "{mp3file}" -y ''')
+    cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -to {end_point} -c copy "{mp3file}" -y ''')
     with open(mp3file, 'rb') as f:
             bot.send_audio(user_id, f)
-    cmd(f'''unlink "{file_path}" && unlink "{mp3file}" && unlink "./downloads/{mp3file}"''')
+    cmd(f'''unlink "{file_path}" && unlink "{mp3file}"''')
   elif CallbackQuery.data == "vidtrim":
     CallbackQuery.edit_message_text(
      "جار القص"
