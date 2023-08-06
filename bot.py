@@ -7,7 +7,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
+    bot_token="5714654934:AAEVIR8baWhJcgUOtWeNmrSjvdRfYRiY7tI"
 )
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
@@ -39,6 +39,12 @@ CHOOSE_UR_FILETRIM_MODE_BUTTONS = [
     [InlineKeyboardButton("صوتية",callback_data="audtrim")],
      [InlineKeyboardButton("فيديو ",callback_data="vidtrim")]
      ]
+CHOOSE_UR_FILERENM_MODE = "اختر نوع ملفك "
+CHOOSE_UR_FILERENM_MODE_BUTTONS = [
+    [InlineKeyboardButton("صوتية",callback_data="audrenm")],
+     [InlineKeyboardButton("فيديو ",callback_data="vidrenm")],
+     [InlineKeyboardButton("وثيقة",callback_data="docrenm")]
+]
 
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
@@ -182,6 +188,22 @@ def callback_query(CLIENT,CallbackQuery):
       "👇"
    ) 
 
+  elif CallbackQuery.data == "audrenm":
+    CallbackQuery.edit_message_text("👇")
+    with open(newfile, 'rb') as f:
+             bot.send_audio(user_id, f)
+    cmd(f'''unlink "{newfile}" ''')
+  elif CallbackQuery.data == "vidrenm":
+    CallbackQuery.edit_message_text("👇")
+    with open(newfile, 'rb') as f:
+             bot.send_video(user_id, f)
+    cmd(f'''unlink "{newfile}" ''')
+  elif CallbackQuery.data == "docrenm":
+    CallbackQuery.edit_message_text("👇")
+    with open(newfile, 'rb') as f:
+             bot.send_document(user_id, f)
+    cmd(f'''unlink "{newfile}" ''')
+
 
 @bot.on_message(filters.private & filters.reply & filters.regex('/'))
 async def refunc(client,message):
@@ -200,9 +222,13 @@ async def refunc(client,message):
 async def refunc(client,message):
    if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
           newname = message.text ;await message.delete()
+          global newfile
           newfile = f"{newname}{ex}"
           cmd(f'''mv "{file_path}" "{newfile}"''')
-          with open(newfile, 'rb') as f:
-            await bot.send_document(user_id, f)
-          cmd(f'''unlink "{newfile}" ''')
+          await message.reply(
+             text = CHOOSE_UR_FILERENM_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILERENM_MODE_BUTTONS)
+
+           )
+        
 bot.run()
