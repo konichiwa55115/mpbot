@@ -16,7 +16,8 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
      [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
           [InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
      [InlineKeyboardButton("التحويل إلى mp3 ",callback_data="conv")],
-     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
+     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")],
+     [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")]
 
 ]
 
@@ -203,6 +204,13 @@ def callback_query(CLIENT,CallbackQuery):
     with open(newfile, 'rb') as f:
              bot.send_document(user_id, f)
     cmd(f'''unlink "{newfile}" ''')
+  elif CallbackQuery.data == "mute":
+    CallbackQuery.edit_message_text("جار الكتم")
+    cmd(f'''ffmpeg -i "{file_path}" -c copy -an "{mp4file}"''')
+    with open(mp4file, 'rb') as f:
+             bot.send_document(user_id, f)
+    cmd(f'''unlink "{mp4file}" && unlink "{file_path}"''')
+
 
 
 @bot.on_message(filters.private & filters.reply & filters.regex('/'))
