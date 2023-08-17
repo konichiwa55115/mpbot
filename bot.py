@@ -266,7 +266,7 @@ def callback_query(CLIENT,CallbackQuery):
         )
   elif CallbackQuery.data == "speedfileaud":
     CallbackQuery.edit_message_text("جار التسريع")
-    cmd(f'''ffmpeg -i {file_path} -filter:a "atempo={speedrateaud}" -vn {mp3file} -y ''')
+    cmd(f'''ffmpeg -i {file_path} -filter:a "atempo={spdrateaud}" -vn {mp3file} -y ''')
     with open(mp3file, 'rb') as f:
              bot.send_audio(user_id, f)
     cmd(f'''unlink "{mp3file}" && unlink "{file_path}"''')
