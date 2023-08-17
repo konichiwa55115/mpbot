@@ -13,11 +13,13 @@ bot = Client(
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],
+    [InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
+    [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],
+    [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")],
      [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
-          [InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
      [InlineKeyboardButton("التحويل إلى mp3 ",callback_data="conv")],
-     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")],
-     [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")]
+     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
+     
 
 ]
 
@@ -46,6 +48,19 @@ CHOOSE_UR_FILERENM_MODE_BUTTONS = [
      [InlineKeyboardButton("فيديو ",callback_data="vidrenm")],
      [InlineKeyboardButton("وثيقة",callback_data="docrenm")]
 ]
+CHOOSE_UR_FILESPED_MODE = "اختر نوع ملفك "
+CHOOSE_UR_FILESPED_MODE_BUTTONS = [
+    [InlineKeyboardButton("صوتية",callback_data="speedfileaud")],
+     [InlineKeyboardButton("فيديو ",callback_data="speedfilevid")]
+]
+
+CHOOSE_UR_SPEED_MODE = "اختر نمط التسريع "
+CHOOSE_UR_SPEED_MODE_BUTTONS = [
+    [InlineKeyboardButton("x1.25",callback_data="spd1")],
+     [InlineKeyboardButton("x1.5 ",callback_data="spd2")],
+     [InlineKeyboardButton("x1.75",callback_data="spd3")],
+      [InlineKeyboardButton("x2",callback_data="spd4")]
+]
 
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
@@ -68,6 +83,9 @@ def _telegram_file(client, message):
   mp4file = f"{nom}.mp4"
   global mp3file
   mp3file = f"{nom}.mp3"
+  global spdrateaud
+
+
   message.reply(
              text = CHOOSE_UR_AUDIO_MODE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AUDIO_MODE_BUTTONS)
@@ -210,6 +228,55 @@ def callback_query(CLIENT,CallbackQuery):
     with open(mp4file, 'rb') as f:
              bot.send_document(user_id, f)
     cmd(f'''unlink "{mp4file}" && unlink "{file_path}"''')
+  elif CallbackQuery.data == "speedy":
+     CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_SPEED_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_SPEED_MODE_BUTTONS)
+        )
+
+  elif CallbackQuery.data == "spd1":
+    global spdratevid
+    spdratevid = 0.8
+    global spdrateaud
+    spdrateaud = 1.25
+    CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILESPED_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILESPED_MODE_BUTTONS)
+        )
+  elif CallbackQuery.data == "spd2":
+    spdratevid = 0.66666666666
+    spdrateaud = 1.5
+    CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILESPED_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILESPED_MODE_BUTTONS)
+        )
+  elif CallbackQuery.data == "spd3":
+    spdratevid = 0.57142857142
+    spdrateaud = 1.75
+    CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILESPED_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILESPED_MODE_BUTTONS)
+        )
+  elif CallbackQuery.data == "spd4":
+    spdratevid = 0.5
+    spdrateaud = 2
+    CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILESPED_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILESPED_MODE_BUTTONS)
+        )
+  elif CallbackQuery.data == "speedfileaud":
+    CallbackQuery.edit_message_text("جار التسريع")
+    cmd(f'''ffmpeg -i {file_path} -filter:a "atempo={speedrateaud}" -vn {mp3file} -y ''')
+    with open(mp3file, 'rb') as f:
+             bot.send_audio(user_id, f)
+    cmd(f'''unlink "{mp3file}" && unlink "{file_path}"''')
+  elif CallbackQuery.data == "speedfilevid":
+    CallbackQuery.edit_message_text("جار التسريع")
+    cmd(f'''ffmpeg -i {file_path} -filter_complex "[0:v]setpts={spdratevid}*PTS[v];[0:a]atempo={spdrateaud}[a]" -map "[v]" -map "[a]" {mp4file} -y ''')
+    with open(mp4file, 'rb') as f:
+             bot.send_video(user_id, f)
+    cmd(f'''unlink "{mp4file}" && unlink "{file_path}"''')
+
 
 
 
