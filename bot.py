@@ -31,6 +31,16 @@ CHOOSE_UR_AMPLE_MODE_BUTTONS = [
      [InlineKeyboardButton("20db",callback_data="mod4")],
      [InlineKeyboardButton("25db",callback_data="mod5")]
 ]
+
+CHOOSE_UR_COMP_MODE = " اختر نمط الضغط \n كلما قل الرقم زاد الضغط و قل حجم الصوتية "
+CHOOSE_UR_COMP_MODE_BUTTONS = [
+    [InlineKeyboardButton("10k",callback_data="compmod1")],
+     [InlineKeyboardButton("20k",callback_data="compmod2")],
+     [InlineKeyboardButton("30k",callback_data="compmod3")],
+     [InlineKeyboardButton("40k",callback_data="compmod4")],
+     [InlineKeyboardButton("50k",callback_data="compmod5")]
+]
+
 CHOOSE_UR_FILE_MODE = "اختر نوع ملفك "
 CHOOSE_UR_FILE_MODE_BUTTONS = [
     [InlineKeyboardButton("صوتية",callback_data="aud")],
@@ -107,13 +117,38 @@ def callback_query(CLIENT,CallbackQuery):
 
   elif CallbackQuery.data == "comp":
    CallbackQuery.edit_message_text(
-      
-      "جار الضغط"
-   )     
-   cmd(f''' ffmpeg -i "{file_path}" -b:a 50k "{mp3file}" -y ''' )
-   with open(mp3file, 'rb') as f:
+             text = CHOOSE_UR_COMP_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_COMP_MODE_BUTTONS) )
+  elif  CallbackQuery.data == "compmod1":
+    CallbackQuery.edit_message_text("جار الضغط ") 
+    cmd(f''' ffmpeg -i "{file_path}" -b:a 10k "{mp3file}" -y ''' )
+    with open(mp3file, 'rb') as f:
          bot.send_audio(user_id, f)
-   cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif  CallbackQuery.data == "compmod2":
+    CallbackQuery.edit_message_text("جار الضغط ") 
+    cmd(f''' ffmpeg -i "{file_path}" -b:a 20k "{mp3file}" -y ''' )
+    with open(mp3file, 'rb') as f:
+         bot.send_audio(user_id, f)
+    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif  CallbackQuery.data == "compmod3":
+    CallbackQuery.edit_message_text("جار الضغط ") 
+    cmd(f''' ffmpeg -i "{file_path}" -b:a 30k "{mp3file}" -y ''' )
+    with open(mp3file, 'rb') as f:
+         bot.send_audio(user_id, f)
+    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif  CallbackQuery.data == "compmod4":
+    CallbackQuery.edit_message_text("جار الضغط ") 
+    cmd(f''' ffmpeg -i "{file_path}" -b:a 40k "{mp3file}" -y ''' )
+    with open(mp3file, 'rb') as f:
+         bot.send_audio(user_id, f)
+    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif  CallbackQuery.data == "compmod5":
+    CallbackQuery.edit_message_text("جار الضغط ") 
+    cmd(f''' ffmpeg -i "{file_path}" -b:a 50k "{mp3file}" -y ''' )
+    with open(mp3file, 'rb') as f:
+         bot.send_audio(user_id, f)
+    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
   elif CallbackQuery.data == "conv" :
    CallbackQuery.edit_message_text(
       
