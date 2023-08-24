@@ -318,7 +318,7 @@ def callback_query(CLIENT,CallbackQuery):
     cmd(f'''unlink "{mp4file}" && unlink "{file_path}"''')
   elif CallbackQuery.data == "audmerge":
     with open('list.txt','a') as f:
-      f.write(f'''file {file_path} \n''')
+      f.write(f'''file '{file_path}' \n''')
     CallbackQuery.edit_message_text(
              text = CHOOSE_UR_MERGE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MERGE_BUTTONS))
