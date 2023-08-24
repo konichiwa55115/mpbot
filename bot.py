@@ -15,9 +15,9 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],
     [InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],
-    [InlineKeyboardButton("دمج صوتيات / فيديوهات ",callback_data="audmerge")],
     [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")],
      [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
+          [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],
      [InlineKeyboardButton("التحويل إلى mp3 ",callback_data="conv")],
      [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
      
@@ -72,17 +72,9 @@ CHOOSE_UR_SPEED_MODE_BUTTONS = [
      [InlineKeyboardButton("x1.75",callback_data="spd3")],
       [InlineKeyboardButton("x2",callback_data="spd4")]
 ]
-CHOOSE_UR_FILEMERGE_MODE = "اختر نوع ملفك "
-CHOOSE_UR_FILEMERGE_MODE_BUTTONS = [
-    [InlineKeyboardButton("صوتية",callback_data="mergefileaud")],
-     [InlineKeyboardButton("فيديو ",callback_data="mergefilevid")]
-]
-CHOOSE_UR_AUDMERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
-CHOOSE_UR_AUDMERGE_BUTTONS = [
-    [InlineKeyboardButton("دمج الآن ",callback_data="audmergenow")] ]
-CHOOSE_UR_VIDMERGE = "أرسل الفيديو التالي  \n تنبيه / بعد الانتهاء من إرسال الفيديوهات اضغط دمج الآن "
-CHOOSE_UR_VIDMERGE_BUTTONS = [
-    [InlineKeyboardButton("دمج الآن ",callback_data="vidmergenow")] ]
+CHOOSE_UR_MERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
+CHOOSE_UR_MERGE_BUTTONS = [
+    [InlineKeyboardButton("دمج الآن ",callback_data="mergenow")] ]
 
 
 @bot.on_message(filters.command('start') & filters.private)
@@ -327,36 +319,18 @@ def callback_query(CLIENT,CallbackQuery):
              bot.send_video(user_id, f)
     cmd(f'''unlink "{mp4file}" && unlink "{file_path}"''')
   elif CallbackQuery.data == "audmerge":
-    CallbackQuery.edit_message_text(
-             text = CHOOSE_UR_FILEMERGE_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILEMERGE_MODE_BUTTONS))
-  elif CallbackQuery.data == "mergefileaud":
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mergdir}" -y ''')
     with open('list.txt','a') as f:
       f.write(f'''file '{mergdir}' \n''')
     CallbackQuery.edit_message_text(
-             text = CHOOSE_UR_AUDMERGE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AUDMERGE_BUTTONS))
-
-  elif CallbackQuery.data == "audmergenow":
+             text = CHOOSE_UR_MERGE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MERGE_BUTTONS))
+  elif CallbackQuery.data == "mergenow":
     CallbackQuery.edit_message_text("جار الدمج")   
     cmd(f'''ffmpeg -f concat -safe 0 -i list.txt "{mp3file}" -y ''')
     with open(mp3file, 'rb') as f:
          bot.send_audio(user_id, f)
     cmd(f'''rm list.txt && rm "{mp3file}" ''')
-    shutil.rmtree('./downloads/') 
-  elif CallbackQuery.data == "mergefilevid":
-    with open('list.txt','a') as f:
-      f.write(f'''file '{file_path}' \n''')
-    CallbackQuery.edit_message_text(
-             text = CHOOSE_UR_VIDMERGE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_VIDMERGE_BUTTONS))
-  elif CallbackQuery.data == "vidmergenow":
-    CallbackQuery.edit_message_text("جار الدمج")   
-    cmd(f'''ffmpeg -f concat -safe 0 -i list.txt "{mp4file}" -y ''')
-    with open(mp4file, 'rb') as f:
-         bot.send_video(user_id, f)
-    cmd(f'''rm list.txt && rm "{mp4file}" ''')
     shutil.rmtree('./downloads/') 
 
 
