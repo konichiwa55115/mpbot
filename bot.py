@@ -12,14 +12,11 @@ bot = Client(
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
-    [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],
-    [InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
-    [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],
-    [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")],
-     [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
-          [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],
-     [InlineKeyboardButton("التحويل إلى mp3 ",callback_data="conv")],
-     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
+    [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
+    [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
+     [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
+    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
+   
      
 
 ]
@@ -75,6 +72,12 @@ CHOOSE_UR_SPEED_MODE_BUTTONS = [
 CHOOSE_UR_MERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
 CHOOSE_UR_MERGE_BUTTONS = [
     [InlineKeyboardButton("دمج الآن ",callback_data="mergenow")] ]
+
+CHOOSE_UR_CONV_MODE = "اختر نمط التحويل"
+CHOOSE_UR_CONV_MODE_BUTTONS = [
+    [InlineKeyboardButton("تحويل صوتية/ فيديو إلى mp3",callback_data="audconv")],
+    [InlineKeyboardButton("تحويل فيديو إلى mp4 ",callback_data="vidconv")]
+]
 
 
 @bot.on_message(filters.command('start') & filters.private)
@@ -157,6 +160,12 @@ def callback_query(CLIENT,CallbackQuery):
          bot.send_audio(user_id, f)
     cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
   elif CallbackQuery.data == "conv" :
+    CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_CONV_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_CONV_MODE_BUTTONS)
+
+        )
+  elif CallbackQuery.data == "audconv" :
    CallbackQuery.edit_message_text(
       
       "جار التحويل "
@@ -165,6 +174,15 @@ def callback_query(CLIENT,CallbackQuery):
    with open(mp3file, 'rb') as f:
         bot.send_audio(user_id, f)
    cmd(f'''unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif CallbackQuery.data == "vidconv" :
+   CallbackQuery.edit_message_text(
+      
+      "جار التحويل "
+   ) 
+   cmd(f'''ffmpeg -i "{file_path}" -codec copy "{mp4file}" -y ''')
+   with open(mp4file, 'rb') as f:
+        bot.send_video(user_id, f)
+   cmd(f'''unlink "{file_path}" && unlink "{mp4file}" ''')
   elif CallbackQuery.data == "trim" :
    file.reply_text("الآن أرسل نقطة البداية والنهاية بهذه الصورة \n\n hh:mm:ss/hh:mm:ss",reply_markup=ForceReply(True))
    CallbackQuery.edit_message_text(
