@@ -103,7 +103,7 @@ def _telegram_file(client, message):
   mp3file = f"{nom}.mp3"
   global spdrateaud
   global mergdir
-  mergdir = f"./downloads/{mp3file}"
+  mergdir = f"./mergy/{mp3file}"
 
 
   message.reply(
@@ -337,6 +337,7 @@ def callback_query(CLIENT,CallbackQuery):
              bot.send_video(user_id, f)
     cmd(f'''unlink "{mp4file}" && unlink "{file_path}"''')
   elif CallbackQuery.data == "audmerge":
+    cmd(f'''mkdir mergy''')
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mergdir}" -y ''')
     with open('list.txt','a') as f:
       f.write(f'''file '{mergdir}' \n''')
@@ -349,7 +350,9 @@ def callback_query(CLIENT,CallbackQuery):
     with open(mp3file, 'rb') as f:
          bot.send_audio(user_id, f)
     cmd(f'''rm list.txt && rm "{mp3file}" ''')
-    shutil.rmtree('./downloads/') 
+    shutil.rmtree('./downloads/')
+    shutil.rmtree('./mergy/') 
+
 
 
 
