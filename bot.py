@@ -7,7 +7,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
+    bot_token="5714654934:AAEVIR8baWhJcgUOtWeNmrSjvdRfYRiY7tI"
 )
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
@@ -15,8 +15,9 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
      [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
-    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
+    [InlineKeyboardButton(" دمج صوتيات / فيديوهات",callback_data="fullmerge")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
    
+   #
      
 
 ]
@@ -43,6 +44,11 @@ CHOOSE_UR_FILE_MODE = "اختر نوع ملفك "
 CHOOSE_UR_FILE_MODE_BUTTONS = [
     [InlineKeyboardButton("صوتية",callback_data="aud")],
      [InlineKeyboardButton("فيديو ",callback_data="vid")]
+]
+CHOOSE_UR_FILEVIDMERGE_MODE = "اختر نوع الدمج "
+CHOOSE_UR_FILEVIDMERGE_MODE_BUTTONS = [
+    [InlineKeyboardButton("صوتيات",callback_data="audmerge")],
+     [InlineKeyboardButton("فيديوهات ",callback_data="vidmerge")]
 ]
 
 CHOOSE_UR_FILETRIM_MODE = "اختر نوع ملفك "
@@ -72,6 +78,10 @@ CHOOSE_UR_SPEED_MODE_BUTTONS = [
 CHOOSE_UR_MERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
 CHOOSE_UR_MERGE_BUTTONS = [
     [InlineKeyboardButton("دمج الآن ",callback_data="mergenow")] ]
+
+CHOOSE_UR_VIDNOWMERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
+CHOOSE_UR_VIDNOWMERGE_BUTTONS = [
+    [InlineKeyboardButton("دمج الآن ",callback_data="vidmergenow")] ]
 
 CHOOSE_UR_CONV_MODE = "اختر نمط التحويل"
 CHOOSE_UR_CONV_MODE_BUTTONS = [
@@ -103,7 +113,9 @@ def _telegram_file(client, message):
   mp3file = f"{nom}.mp3"
   global spdrateaud
   global mergdir
+  global mergodir
   mergdir = f"./mergy/{mp3file}"
+  mergodir = f"./downloads/{filename}"
 
 
   message.reply(
@@ -344,6 +356,28 @@ def callback_query(CLIENT,CallbackQuery):
     CallbackQuery.edit_message_text(
              text = CHOOSE_UR_MERGE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MERGE_BUTTONS))
+    ######################
+  elif CallbackQuery.data == "vidmerge":
+    with open('vidlist.txt','a') as f:
+      f.write(f'''file {mergodir} \n''')
+    CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_VIDNOWMERGE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_VIDNOWMERGE_BUTTONS))
+#########################
+  elif CallbackQuery.data == "fullmerge":
+    CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_FILEVIDMERGE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILEVIDMERGE_MODE_BUTTONS))
+
+  elif CallbackQuery.data == "vidmergenow":
+    CallbackQuery.edit_message_text("جار الدمج")   
+    cmd(f'''ffmpeg -f concat -safe 0 -i vidlist.txt "{mp4file}" -y ''')
+    with open(mp4file, 'rb') as f:
+         bot.send_video(user_id, f)
+    cmd(f'''rm vidlist.txt && rm "{mp4file}" ''')
+    shutil.rmtree('./downloads/')
+
+  ############
   elif CallbackQuery.data == "mergenow":
     CallbackQuery.edit_message_text("جار الدمج")   
     cmd(f'''ffmpeg -f concat -safe 0 -i list.txt "{mp3file}" -y ''')
