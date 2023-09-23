@@ -256,7 +256,7 @@ def callback_query(CLIENT,CallbackQuery):
     CallbackQuery.edit_message_text(
      "جار القص"
       )  
-    cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -strict -2 -to {end_point} -codec:v h264 -b:v 100k "{mp4file}" -y ''')
+    cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -strict -2 -to {end_point} -c:a aac -codec:v h264 -b:v 1000k "{mp4file}" -y ''')
     with open(mp4file, 'rb') as f:
             bot.send_video(user_id, f)
     cmd(f'''unlink "{file_path}" && unlink "{mp4file}" ''')
