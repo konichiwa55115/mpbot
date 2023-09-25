@@ -103,7 +103,10 @@ def _telegram_file(client, message):
   mp3file = f"{nom}.mp3"
   global spdrateaud
   global mergdir
+  global trimdir
   mergdir = f"./mergy/{mp3file}"
+  trimdir = f"./trimmo/{mp3file}"
+
 
 
   message.reply(
@@ -248,10 +251,14 @@ def callback_query(CLIENT,CallbackQuery):
     CallbackQuery.edit_message_text(
      "جار القص"
       )  
-    cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -to {end_point} -c copy "{mp3file}" -y ''')
+    cmd(f'''mkdir trimmo''')  
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{trimdir}" -y ''')
+    cmd(f'''ffmpeg -i "{trimdir}" -ss {strt_point} -to {end_point} -c copy "{mp3file}" -y ''')
     with open(mp3file, 'rb') as f:
             bot.send_audio(user_id, f)
     cmd(f'''unlink "{file_path}" && unlink "{mp3file}"''')
+    shutil.rmtree('./trimmo/') 
+      
   elif CallbackQuery.data == "vidtrim":
     CallbackQuery.edit_message_text(
      "جار القص"
