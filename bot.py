@@ -83,6 +83,9 @@ CHOOSE_UR_CONV_MODE_BUTTONS = [
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
     bot.send_message(message.chat.id, " السلام عليكم أنا بوت متعدد الاستعمالات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/sunnay6626/2 ",disable_web_page_preview=True)
+@bot.on_message(filters.command('clear') & filters.private)
+def command2(bot,message):
+    cmd('''rm list.txt ''')
     
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document )
 def _telegram_file(client, message):
