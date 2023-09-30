@@ -1,6 +1,5 @@
 import os
 from pyrogram import Client, filters
-from werkzeug.urls import url_quote
 import requests
 import pytesseract
 from os import system as cmd
