@@ -1,6 +1,6 @@
 #Thank you LazyDeveloper for helping me in this journey !
 #Must Subscribe On YouTube @LazyDeveloperr 
-
+from werkzeug.urls import url_quote
 from flask import Flask
 app = Flask(__name__)
 
