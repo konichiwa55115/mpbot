@@ -1,5 +1,7 @@
 import os
 from pyrogram import Client, filters
+import requests
+import pytesseract
 from os import system as cmd
 from pyrogram.types import InlineKeyboardMarkup , InlineKeyboardButton , ReplyKeyboardMarkup , CallbackQuery , ForceReply
 import shutil
@@ -15,10 +17,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
      [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
-    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
-   
-     
-
+    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")]
 ]
 
 CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
@@ -87,7 +86,7 @@ def command1(bot,message):
 def command2(bot,message):
     cmd('''rm list.txt ''')
     
-@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document )
+@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo )
 def _telegram_file(client, message):
   global user_id
   user_id = message.from_user.id
@@ -362,7 +361,17 @@ def callback_query(CLIENT,CallbackQuery):
     cmd(f'''rm list.txt && rm "{mp3file}" ''')
     shutil.rmtree('./downloads/')
     shutil.rmtree('./mergy/') 
-
+  elif CallbackQuery.data == "OCR":
+    CallbackQuery.edit_message_text("جار التفريغ")
+    lang_code = "ara"
+    data_url = f"https://github.com/tesseract-ocr/tessdata/raw/main/{lang_code}.traineddata"
+    dirs = r"/usr/share/tesseract-ocr/4.00/tessdata"
+    path = os.path.join(dirs, f"{lang_code}.traineddata")
+    data = requests.get(data_url, allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'})
+    open(path, 'wb').write(data.content)
+    text = pytesseract.image_to_string(file_path, lang=f"{lang_code}")
+    file.reply(text[:-1], quote=True, disable_web_page_preview=True)
+    os.remove(file_path)
 
 
 
