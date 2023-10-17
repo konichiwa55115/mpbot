@@ -17,7 +17,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
      [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],[InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty")],
-    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")]
+    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")]
 ]
 
 CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
@@ -137,6 +137,12 @@ def callback_query(CLIENT,CallbackQuery):
   elif  CallbackQuery.data == "compmod1":
     CallbackQuery.edit_message_text("جار الضغط ") 
     cmd(f''' ffmpeg -i "{file_path}" -b:a 10k "{mp3file}" -y ''' )
+    with open(mp3file, 'rb') as f:
+         bot.send_audio(user_id, f)
+    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif  CallbackQuery.data == "voicy":
+    CallbackQuery.edit_message_text("جار تغيير الصوت ") 
+    cmd(f'''ffmpeg -i "{file_path}" -af asetrate=44100*0.9,aresample=44100,atempo=1/0.9 "{mp3file}"''')
     with open(mp3file, 'rb') as f:
          bot.send_audio(user_id, f)
     cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
