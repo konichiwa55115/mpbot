@@ -16,7 +16,7 @@ CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
-     [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
+     [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],[InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty")],
     [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")]
 ]
 
@@ -361,6 +361,51 @@ def callback_query(CLIENT,CallbackQuery):
     cmd(f'''rm list.txt && rm "{mp3file}" ''')
     shutil.rmtree('./downloads/')
     shutil.rmtree('./mergy/') 
+  elif CallbackQuery.data == "splitty":
+    CallbackQuery.edit_message_text("جار التقسيم")  
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a mod.mp3 -y''')
+    cmd(f'mkdir parts')
+    cmd(f'''ffmpeg -i "mod.mp3" -f segment -segment_time 300 -c copy "./parts/{nom}%09d.wav" -y''')
+    dir_path = "./parts/"
+    count = 0
+    for path in os.listdir(dir_path):
+        if os.path.isfile(os.path.join(dir_path, path)):
+                            count += 1
+                            numbofitems=count
+    if numbofitems<10 :
+        
+     coca=0
+     while (coca < numbofitems): 
+             pathy=f"./parts/{nom}00000000{coca}.wav"
+             reso = f"{nom}00000000{coca}.mp3"
+             cmd(f'''ffmpeg -i "{pathy}" -q:a 0 -map a "{reso}" -y''')
+             with open(reso, 'rb') as f:
+               bot.send_audio(user_id, f)
+             cmd(f'''rm "{reso}"''') 
+             coca += 1 
+    else :
+     coca=0 
+     while (coca < 10): 
+             pathy=f"./parts/{nom}00000000{coca}.wav"
+             reso = f"{nom}00000000{coca}.mp3"
+             cmd(f'''ffmpeg -i "{pathy}" -q:a 0 -map a "{reso}" -y''')
+             with open(reso, 'rb') as f:
+               bot.send_audio(user_id, f)
+             cmd(f'''rm "{reso}"''') 
+             coca += 1        
+     coca=10
+     while (coca < numbofitems ): 
+             pathy=f"./parts/{nom}0000000{coca}.wav"
+             reso = f"{nom}00000000{coca}.mp3"
+             cmd(f'''ffmpeg -i "{pathy}" -q:a 0 -map a "{reso}" -y''')
+             with open(reso, 'rb') as f:
+               bot.send_audio(user_id, f)
+             cmd(f'''rm "{reso}"''') 
+             coca += 1                                      
+    shutil.rmtree('./downloads/')
+    shutil.rmtree('./parts/') 
+    cmd(f'''rm mod.mp3''')
+    
   elif CallbackQuery.data == "OCR":
     CallbackQuery.edit_message_text("جار التفريغ")
     lang_code = "ara"
