@@ -17,7 +17,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
      [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],[InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty")],
-    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")]
+    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")], [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")]
 ]
 
 CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
@@ -77,7 +77,12 @@ CHOOSE_UR_CONV_MODE_BUTTONS = [
     [InlineKeyboardButton("تحويل صوتية/ فيديو إلى mp3",callback_data="audconv")],
     [InlineKeyboardButton("تحويل فيديو إلى mp4 ",callback_data="vidconv")]
 ]
-
+CHOOSE_UR_SUBS_MODE = '''اختر ما يناسب'''
+CHOOSE_UR_SUBS_MODE_BUTTONS = [
+    [InlineKeyboardButton("هذا الفيديو",callback_data="thisisvid")], [InlineKeyboardButton("إبدال الآن",callback_data="subsnow")]]
+CHOOSE_UR_MON_MODE = '''اختر ما يناسب'''
+CHOOSE_UR_MON_MODE_BUTTONS = [
+    [InlineKeyboardButton("هذه الصورة",callback_data="thisisimage")], [InlineKeyboardButton("منتجة الآن",callback_data="montagnow")]]
 
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
@@ -146,6 +151,38 @@ def callback_query(CLIENT,CallbackQuery):
     with open(mp3file, 'rb') as f:
          bot.send_audio(user_id, f)
     cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+  elif  CallbackQuery.data == "thisisvid":
+     cmd(f'''mv "{file_path}" subsvid.mp4 ''')
+     CallbackQuery.edit_message_text("الآن أرسل الصوت الجديد ثم اختر إبدال الآن") 
+  elif  CallbackQuery.data == "thisisimage":
+     cmd(f'''mv "{file_path}" imagetovid.jpg ''')
+     CallbackQuery.edit_message_text("الآن أرسل الصوت  ثم اختر منتجة الآن") 
+
+  elif  CallbackQuery.data == "subs":
+     CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_SUBS_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_SUBS_MODE_BUTTONS)
+
+        )
+  elif  CallbackQuery.data == "imagetovid":
+     CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_MON_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MON_MODE_BUTTONS)
+
+        )
+  elif  CallbackQuery.data == "subsnow":
+      CallbackQuery.edit_message_text("جار الإبدال ") 
+      cmd(f'''ffmpeg -i subsvid.mp4 -i "{file_path}" -c:v copy -map 0:v:0 -map 1:a:0 "{mp4file}"''')
+      with open(mp4file, 'rb') as f:
+         bot.send_video(user_id, f)
+      cmd(f''' unlink "{file_path}" && unlink "{mp4file}" && unlink subsvid.mp4''')
+  elif  CallbackQuery.data == "montagnow":
+      CallbackQuery.edit_message_text("جار المنتجة ") 
+      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')
+      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  imagetovid.jpg -i "{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
+      with open(mp4file, 'rb') as f:
+         bot.send_video(user_id, f)
+      cmd(f''' rm "{file_path}" "{mp4file}" "{mp3file}" imagetovid.jpg''')
   elif  CallbackQuery.data == "compmod2":
     CallbackQuery.edit_message_text("جار الضغط ") 
     cmd(f''' ffmpeg -i "{file_path}" -b:a 20k "{mp3file}" -y ''' )
