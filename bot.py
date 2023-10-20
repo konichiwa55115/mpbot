@@ -155,7 +155,7 @@ def callback_query(CLIENT,CallbackQuery):
      cmd(f'''mv "{file_path}" subsvid.mp4 ''')
      CallbackQuery.edit_message_text("الآن أرسل الصوت الجديد ثم اختر إبدال الآن") 
   elif  CallbackQuery.data == "thisisimage":
-     cmd(f'''mv "{file_path}" imagetovid.jpg ''')
+     cmd(f'''mv "{file_path}" "./downloads/imagetovid.jpg" ''')
      CallbackQuery.edit_message_text("الآن أرسل الصوت  ثم اختر منتجة الآن") 
 
   elif  CallbackQuery.data == "subs":
@@ -178,11 +178,12 @@ def callback_query(CLIENT,CallbackQuery):
       cmd(f''' unlink "{file_path}" && unlink "{mp4file}" && unlink subsvid.mp4''')
   elif  CallbackQuery.data == "montagnow":
       CallbackQuery.edit_message_text("جار المنتجة ") 
-      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')
-      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  imagetovid.jpg -i "{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
+      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
+      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "./downloads/imagetovid.jpg" -i "./downloads/temp{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
       with open(mp4file, 'rb') as f:
          bot.send_video(user_id, f)
-      cmd(f''' rm "{file_path}" "{mp4file}" "{mp3file}" imagetovid.jpg''')
+      cmd(f''' unlink "{mp4file}"''')
+      shutil.rmtree('./downloads/') 
   elif  CallbackQuery.data == "compmod2":
     CallbackQuery.edit_message_text("جار الضغط ") 
     cmd(f''' ffmpeg -i "{file_path}" -b:a 20k "{mp3file}" -y ''' )
