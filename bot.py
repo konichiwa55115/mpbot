@@ -152,7 +152,7 @@ def callback_query(CLIENT,CallbackQuery):
          bot.send_audio(user_id, f)
     cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
   elif  CallbackQuery.data == "thisisvid":
-     cmd(f'''mv "{file_path}" subsvid.mp4 ''')
+     cmd(f'''mv "{file_path}" "./downloads/subsvid.mp4" ''')
      CallbackQuery.edit_message_text("الآن أرسل الصوت الجديد ثم اختر إبدال الآن") 
   elif  CallbackQuery.data == "thisisimage":
      cmd(f'''mv "{file_path}" "./downloads/imagetovid.jpg" ''')
@@ -172,10 +172,12 @@ def callback_query(CLIENT,CallbackQuery):
         )
   elif  CallbackQuery.data == "subsnow":
       CallbackQuery.edit_message_text("جار الإبدال ") 
-      cmd(f'''ffmpeg -i subsvid.mp4 -i "{file_path}" -c:v copy -map 0:v:0 -map 1:a:0 "{mp4file}"''')
+      cmd(f'''ffmpeg -i "./downloads/subsvid.mp4" -i "{file_path}" -c:v copy -map 0:v:0 -map 1:a:0 "{mp4file}"''')
       with open(mp4file, 'rb') as f:
          bot.send_video(user_id, f)
-      cmd(f''' unlink "{file_path}" && unlink "{mp4file}" && unlink subsvid.mp4''')
+      cmd(f''' unlink "{mp4file}"''')
+      shutil.rmtree('./downloads/') 
+
   elif  CallbackQuery.data == "montagnow":
       CallbackQuery.edit_message_text("جار المنتجة ") 
       cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
