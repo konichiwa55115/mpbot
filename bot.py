@@ -9,7 +9,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
+    bot_token="6169974916:AAFr7Zf_RZHgS-uK6J0y1b0clj1iInxwMGs"
 )
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
@@ -17,7 +17,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
      [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],[InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty")],
-    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")], [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")]
+    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")],  [InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],[InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")]
 ]
 
 CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
@@ -68,6 +68,7 @@ CHOOSE_UR_SPEED_MODE_BUTTONS = [
      [InlineKeyboardButton("x1.75",callback_data="spd3")],
       [InlineKeyboardButton("x2",callback_data="spd4")]
 ]
+
 CHOOSE_UR_MERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
 CHOOSE_UR_MERGE_BUTTONS = [
     [InlineKeyboardButton("دمج الآن ",callback_data="mergenow")] ]
@@ -113,6 +114,8 @@ def _telegram_file(client, message):
   global trimdir
   mergdir = f"./mergy/{mp3file}"
   trimdir = f"./trimmo/{mp3file}"
+  global result
+  result = f"{nom}.txt"
 
 
 
@@ -337,6 +340,30 @@ def callback_query(CLIENT,CallbackQuery):
     with open(newfile, 'rb') as f:
              bot.send_document(user_id, f)
     cmd(f'''unlink "{newfile}" ''')
+  elif CallbackQuery.data == "transcribe":
+    try: 
+      with open('transcription.txt', 'r') as fh:
+        if os.stat('transcription.txt').st_size == 0: 
+            pass
+        else:
+            CallbackQuery.edit_message_text("هناك عملية تفريغ تتم الآن")
+            return
+    except FileNotFoundError: 
+      pass  
+    CallbackQuery.edit_message_text("جار التفريغ")
+    finalid = user_id
+    finalnom = result
+    finalmp3 = mp3file
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')  
+    cmd(f'''python3 speech.py RK3ETXWBJQSMO262RXPAIXFSG6NH3QRH "{finalmp3}" "transcription.txt" ''')
+    cmd(f'''mv transcription.txt "{finalnom}"''')
+    with open(finalnom, 'rb') as f:
+        bot.send_document(finalid, f)
+    CallbackQuery.edit_message_text("تم التفريغ ✅  ")   
+    cmd(f'''rm "{finalnom}" "{finalmp3}"''')
+    shutil.rmtree('./downloads/')
+
+    
   elif CallbackQuery.data == "mute":
     CallbackQuery.edit_message_text("جار الكتم")
     cmd(f'''ffmpeg -i "{file_path}" -c copy -an "{mp4file}"''')
