@@ -168,7 +168,16 @@ def callback_query(CLIENT,CallbackQuery):
 
         )
   elif  CallbackQuery.data == "imagetovid":
-     CallbackQuery.edit_message_text(
+    try: 
+      with open("./downloads/imagetovid.jpg", 'r') as fh:
+        if os.stat("./downloads/imagetovid.jpg").st_size == 0: 
+            pass
+        else:
+            CallbackQuery.edit_message_text("هناك عملية منتجة تتم الآن")
+            return
+    except FileNotFoundError: 
+      pass  
+    CallbackQuery.edit_message_text(
              text = CHOOSE_UR_MON_MODE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MON_MODE_BUTTONS)
 
