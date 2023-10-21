@@ -191,9 +191,10 @@ def callback_query(CLIENT,CallbackQuery):
       shutil.rmtree('./downloads/') 
 
   elif  CallbackQuery.data == "montagnow":
+      finalmp3montaj = f"./downloads/temp{mp3file}"
       CallbackQuery.edit_message_text("جار المنتجة ") 
-      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
-      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "./downloads/imagetovid.jpg" -i "./downloads/temp{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
+      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{finalmp3montaj}" -y ''')
+      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "./downloads/imagetovid.jpg" -i "{finalmp3montaj}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
       with open(mp4file, 'rb') as f:
          bot.send_video(user_id, f)
       cmd(f''' unlink "{mp4file}"''')
