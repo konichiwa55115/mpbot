@@ -17,7 +17,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
      [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],[InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty")],
-    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")],  [InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],[InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR"),[InlineKeyboardButton("titled",callback_data="titled")]
+    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")],  [InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],[InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")],[InlineKeyboardButton("titled",callback_data="titled")]
 ]
 
 CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
