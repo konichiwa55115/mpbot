@@ -159,7 +159,8 @@ def callback_query(CLIENT,CallbackQuery):
          bot.send_document(user_id, f)
       cmd(f'''rm "{filename}"''')
 
-  elif  CallbackQuery.data == "voicy":    CallbackQuery.edit_message_text("جار تغيير الصوت ") 
+  elif  CallbackQuery.data == "voicy":   
+    CallbackQuery.edit_message_text("جار تغيير الصوت ") 
     bid = user_id
     cmd(f'''ffmpeg -i "{file_path}" -af asetrate=44100*0.9,aresample=44100,atempo=1/0.9 "{mp3file}"''')
     with open(mp3file, 'rb') as f:
