@@ -255,7 +255,7 @@ def callback_query(CLIENT,CallbackQuery):
    lamid = user_id
    cmd(f'''ffmpeg -i "{file_path}" -c:a aac -b:a 192k "{m4afile}" -y ''')
    with open(m4afile, 'rb') as f:
-        bot.send_audio(lamid, f)
+        bot.send_document(lamid, f)
    cmd(f'''unlink "{m4afile}" ''')
    shutil.rmtree('./downloads/') 
 
