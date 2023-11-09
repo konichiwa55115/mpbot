@@ -76,6 +76,7 @@ CHOOSE_UR_MERGE_BUTTONS = [
 CHOOSE_UR_CONV_MODE = "اختر نمط التحويل"
 CHOOSE_UR_CONV_MODE_BUTTONS = [
     [InlineKeyboardButton("تحويل صوتية/ فيديو إلى mp3",callback_data="audconv")],
+     [InlineKeyboardButton("تحويل صوتية/ فيديو إلى m4a",callback_data="audconvm4a")],
     [InlineKeyboardButton("تحويل فيديو إلى mp4 ",callback_data="vidconv")]
 ]
 CHOOSE_UR_SUBS_MODE = '''اختر ما يناسب'''
@@ -109,6 +110,8 @@ def _telegram_file(client, message):
   mp4file = f"{nom}.mp4"
   global mp3file
   mp3file = f"{nom}.mp3"
+  global m4afile
+  m4afile = f"{nom}.m4a"
   global spdrateaud
   global mergdir
   global trimdir
@@ -240,15 +243,20 @@ def callback_query(CLIENT,CallbackQuery):
 
         )
   elif CallbackQuery.data == "audconv" :
-   CallbackQuery.edit_message_text(
-      
-      "جار التحويل "
-   ) 
+   CallbackQuery.edit_message_text("جار التحويل ") 
    iid = user_id
    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')
    with open(mp3file, 'rb') as f:
         bot.send_audio(iid, f)
    cmd(f'''unlink "{mp3file}" ''')
+   shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "audconvm4a" :
+   CallbackQuery.edit_message_text("جار التحويل ") 
+   lamid = user_id
+   cmd(f'''ffmpeg -i "{file_path}" -c:a libfdk_aac "{m4afile}" -y ''')
+   with open(m4afile, 'rb') as f:
+        bot.send_audio(lamid, f)
+   cmd(f'''unlink "{m4afile}" ''')
    shutil.rmtree('./downloads/') 
 
   elif CallbackQuery.data == "vidconv" :
