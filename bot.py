@@ -253,7 +253,7 @@ def callback_query(CLIENT,CallbackQuery):
   elif CallbackQuery.data == "audconvm4a" :
    CallbackQuery.edit_message_text("جار التحويل ") 
    lamid = user_id
-   cmd(f'''ffmpeg -i "{file_path}" -c:a libfdk_aac "{m4afile}" -y ''')
+   cmd(f'''ffmpeg -i "{file_path}" -c:a aac -b:a 192k "{m4afile}" -y ''')
    with open(m4afile, 'rb') as f:
         bot.send_audio(lamid, f)
    cmd(f'''unlink "{m4afile}" ''')
