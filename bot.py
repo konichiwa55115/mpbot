@@ -157,6 +157,7 @@ def callback_query(CLIENT,CallbackQuery):
       cmd(f'''mv "{file_path}" "{filename}"''')
       with open(filename, 'rb') as f:
          bot.send_document(user_id, f)
+      CallbackQuery.edit_message_text("تم الإرسال  ") 
       cmd(f'''rm "{filename}"''')
 
   elif  CallbackQuery.data == "voicy":   
