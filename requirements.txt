@@ -11,6 +11,7 @@ aiohttp==3.8.1
 pymongo[srv]==3.12.3
 coloredlogs
 watchdog
+Werkzeug==2.2.2
 pydub
 audioread
 
