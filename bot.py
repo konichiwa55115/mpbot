@@ -545,15 +545,7 @@ def callback_query(CLIENT,CallbackQuery):
     cmd(f'''rm mod.mp3''')
     
   elif CallbackQuery.data == "OCR":
-    try: 
-      with open('final.txt', 'r') as fh:
-        if os.stat('final.txt').st_size == 0: 
-            pass
-        else:
-            CallbackQuery.edit_message_text("هناك تفريغ يتم الآن ") 
-            return
-    except FileNotFoundError: 
-     pass  
+   
     aid = user_id
     CallbackQuery.edit_message_text("جار التفريغ")
     lang_code = "ara"
@@ -567,6 +559,15 @@ def callback_query(CLIENT,CallbackQuery):
     file.reply(textspaced[:-1], quote=True, disable_web_page_preview=True)
     shutil.rmtree('./downloads/') 
   elif CallbackQuery.data == "pdfOCR":
+    try: 
+      with open('final.txt', 'r') as fh:
+        if os.stat('final.txt').st_size == 0: 
+            pass
+        else:
+            CallbackQuery.edit_message_text("هناك تفريغ يتم الآن ") 
+            return
+    except FileNotFoundError: 
+     pass  
     aid = user_id
     CallbackQuery.edit_message_text("جار التفريغ")
     cmd('mkdir temp')
