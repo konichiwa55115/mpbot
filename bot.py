@@ -1,15 +1,16 @@
-import os
+import os ,re
 from pyrogram import Client, filters
 import requests
 import pytesseract
 from os import system as cmd
 from pyrogram.types import InlineKeyboardMarkup , InlineKeyboardButton , ReplyKeyboardMarkup , CallbackQuery , ForceReply
 import shutil
+import pypdfium2 as pdfium
 bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
+    bot_token="5998058674:AAEXlnSyDM3Cz-q9AAqOdHWzBYxFzxv3EPE"
 )
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
@@ -17,7 +18,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
     [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
      [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],[InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty")],
-    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")],  [InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],[InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")],[InlineKeyboardButton("titled",callback_data="titled")]
+    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")],  [InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],[InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")],[InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR")],[InlineKeyboardButton("titled",callback_data="titled")]
 ]
 
 CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
@@ -544,6 +545,15 @@ def callback_query(CLIENT,CallbackQuery):
     cmd(f'''rm mod.mp3''')
     
   elif CallbackQuery.data == "OCR":
+    try: 
+      with open('final.txt', 'r') as fh:
+        if os.stat('final.txt').st_size == 0: 
+            pass
+        else:
+            CallbackQuery.edit_message_text("هناك تفريغ يتم الآن ") 
+            return
+    except FileNotFoundError: 
+     pass  
     aid = user_id
     CallbackQuery.edit_message_text("جار التفريغ")
     lang_code = "ara"
@@ -553,8 +563,54 @@ def callback_query(CLIENT,CallbackQuery):
     data = requests.get(data_url, allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'})
     open(path, 'wb').write(data.content)
     text = pytesseract.image_to_string(file_path, lang=f"{lang_code}")
-    file.reply(text[:-1], quote=True, disable_web_page_preview=True)
+    textspaced = re.sub(r'\r\n|\r|\n', ' ', text)
+    file.reply(textspaced[:-1], quote=True, disable_web_page_preview=True)
     shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "pdfOCR":
+    aid = user_id
+    CallbackQuery.edit_message_text("جار التفريغ")
+    cmd('mkdir temp')
+    pdf = pdfium.PdfDocument(file_path)
+    n_pages = len(pdf)
+    for page_number in range(n_pages):
+     page = pdf.get_page(page_number)
+     pil_image = page.render_topil(
+        scale=1,
+        rotation=0,
+        crop=(0, 0, 0, 0),
+        colour=(255, 255, 255, 255),
+        annotations=True,
+        greyscale=False,
+        optimise_mode=pdfium.OptimiseMode.NONE,
+    )
+     pil_image.save(f"./temp/image_{page_number+1}.png")
+    shutil.rmtree('./downloads/') 
+    count = 0
+    for path in os.listdir("./temp/"):
+                if os.path.isfile(os.path.join("./temp/", path)):
+                            count += 1
+                            numbofitems=count
+    coca=1
+    final = numbofitems 
+    while (coca < final): 
+     cmd(f'''sh textcleaner -g "./temp/image_{coca}.png" temp.png ''')
+     lang_code = "ara"
+     data_url = f"https://github.com/tesseract-ocr/tessdata/raw/main/{lang_code}.traineddata"
+     dirs = r"/usr/share/tesseract-ocr/4.00/tessdata"
+     path = os.path.join(dirs, f"{lang_code}.traineddata")
+     data = requests.get(data_url, allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'})
+     open(path, 'wb').write(data.content)
+     text = pytesseract.image_to_string(f"temp.png" , lang=f"{lang_code}")
+     textspaced = re.sub(r'\r\n|\r|\n', ' ', text)
+     with open("final.txt",'a') as f:
+      f.write(f'''{textspaced} \n''')
+     coca +=1
+    cmd(f'''mv final.txt "{result}"''')
+  with open(result, 'rb') as f:
+         bot.send_document(aid, f)
+  shutil.rmtree('./temp/') 
+  cmd(f'''rm "{result}"''')
+
 
 
 
