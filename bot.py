@@ -10,7 +10,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="5998058674:AAEXlnSyDM3Cz-q9AAqOdHWzBYxFzxv3EPE"
+    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
