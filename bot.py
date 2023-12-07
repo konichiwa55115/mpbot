@@ -6,6 +6,8 @@ from os import system as cmd
 from pyrogram.types import InlineKeyboardMarkup , InlineKeyboardButton , ReplyKeyboardMarkup , CallbackQuery , ForceReply
 import shutil
 import pypdfium2 as pdfium
+from yt_dlp import YoutubeDL
+ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 bot = Client(
     "audiobot",
     api_id=17983098,
@@ -20,7 +22,13 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
      [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],[InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty")],
     [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")],  [InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],[InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")],[InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR")],[InlineKeyboardButton("titled",callback_data="titled")]
 ]
-
+CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
+CHOOSE_UR_DL_MODE_BUTTONS = [
+    [InlineKeyboardButton("VIDEO 360P",callback_data="vid360")],
+    [InlineKeyboardButton("VIDEO 720P ",callback_data="vid720")],
+    [InlineKeyboardButton("AUDIO",callback_data="auddl")],
+    
+]
 CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
 CHOOSE_UR_AMPLE_MODE_BUTTONS = [
     [InlineKeyboardButton("5db",callback_data="mod1")],
@@ -90,6 +98,11 @@ CHOOSE_UR_MON_MODE_BUTTONS = [
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
     bot.send_message(message.chat.id, " السلام عليكم أنا بوت متعدد الاستعمالات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/sunnay6626/2 ",disable_web_page_preview=True)
+@bot.on_message(filters.command('ytdl') & filters.private)
+def command2(bot,message):
+     message.reply_text("الآن أرسل الرابط \n\n",reply_markup=ForceReply(True))
+     global yt_id
+     yt_id = message.from_user.id
 @bot.on_message(filters.command('clear') & filters.private)
 def command2(bot,message):
     cmd('''rm list.txt ''')
@@ -470,6 +483,40 @@ def callback_query(CLIENT,CallbackQuery):
              bot.send_audio(aid, f)
     cmd(f'''unlink "{mp3file}" ''')
     shutil.rmtree('./downloads/') 
+  
+  elif CallbackQuery.data == "vid360":
+    CallbackQuery.edit_message_text("جار التنزيل")
+    with YoutubeDL() as ydl: 
+        info_dict = ydl.extract_info(f'{ytlink}', download=False)
+        video_url = info_dict.get("url", None)
+        video_id = info_dict.get("id", None)
+        video_title = info_dict.get('title', None)    
+    cmd(f'''yt-dlp -f 18 -ciw  -o "{video_title}.mp4" "{ytlink}"''')
+    with open(f'''{video_title}.mp4''', 'rb') as f:
+          bot.send_video(yt_id, f,caption=video_title)
+    cmd(f'''rm "{video_title}.mp4" ''' ) 
+  elif CallbackQuery.data == "vid720":
+    CallbackQuery.edit_message_text("جار التنزيل")
+    with YoutubeDL() as ydl: 
+        info_dict = ydl.extract_info(f'{ytlink}', download=False)
+        video_url = info_dict.get("url", None)
+        video_id = info_dict.get("id", None)
+        video_title = info_dict.get('title', None)    
+    cmd(f'''yt-dlp -f 22 -ciw  -o "{video_title}.mp4" "{ytlink}"''')
+    with open(f'''{video_title}.mp4''', 'rb') as f:
+          bot.send_video(yt_id, f,caption=video_title)
+    cmd(f'''rm "{video_title}.mp4" ''' ) 
+  elif CallbackQuery.data == "auddl":
+    CallbackQuery.edit_message_text("جار التنزيل")
+    with YoutubeDL() as ydl: 
+        info_dict = ydl.extract_info(f'{ytlink}', download=False)
+        video_url = info_dict.get("url", None)
+        video_id = info_dict.get("id", None)
+        video_title = info_dict.get('title', None)    
+    cmd(f'''yt-dlp -ciw  --extract-audio --audio-format mp3  -o "{video_title}.mp3"  "{ytlink}"''')
+    with open(f'''{video_title}.mp3''', 'rb') as f:
+          bot.send_audio(yt_id, f,caption=video_title)
+    cmd(f'''rm "{video_title}.mp3" ''' ) 
 
   elif CallbackQuery.data == "speedfilevid":
     CallbackQuery.edit_message_text("جار التسريع")
@@ -607,17 +654,25 @@ def callback_query(CLIENT,CallbackQuery):
       f.write(f'''{textspaced} \n''')
      coca +=1
     cmd(f'''mv final.txt "{result}"''')
-  with open(result, 'rb') as f:
+    with open(result, 'rb') as f:
          bot.send_document(aid, f)
-  shutil.rmtree('./temp/') 
-  cmd(f'''rm "{result}"''')
+    shutil.rmtree('./temp/') 
+    cmd(f'''rm "{result}"''')
 
 
 
 
 
+@bot.on_message(filters.private & filters.reply & filters.regex(ytregex))
+async def refunc(client,message):
+   if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          global ytlink
+          ytlink = message.text 
+          await message.reply(
+             text = CHOOSE_UR_DL_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_DL_MODE_BUTTONS)
 
-
+        )
 
 @bot.on_message(filters.private & filters.reply & filters.regex('/'))
 async def refunc(client,message):
