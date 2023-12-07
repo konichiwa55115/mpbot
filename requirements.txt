@@ -15,5 +15,6 @@ Werkzeug==2.2.2
 pydub
 audioread
 pypdfium2==2.8.0
+yt-dlp
 
 
