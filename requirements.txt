@@ -16,6 +16,8 @@ pydub
 audioread
 pypdfium2==2.8.0
 pypdf
+PDFNetPython3
+PyPDF2
 yt-dlp
 
 
