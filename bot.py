@@ -7,6 +7,9 @@ from pyrogram.types import InlineKeyboardMarkup , InlineKeyboardButton , ReplyKe
 import shutil
 import pypdfium2 as pdfium
 from yt_dlp import YoutubeDL
+from PyPDF2 import PdfFileWriter, PdfFileReader
+from pypdf import PdfMerger
+from PDFNetPython3.PDFNetPython import PDFDoc, Optimizer, SDFDoc, PDFNet
 ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 bot = Client(
     "audiobot",
@@ -14,13 +17,21 @@ bot = Client(
     api_hash="ee28199396e0925f1f44d945ac174f64",
     bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
+#6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
-    [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
-    [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
-     [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],[InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty")],
-    [InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")], [InlineKeyboardButton("تغيير الصوت",callback_data="voicy")],[InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")],  [InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],[InlineKeyboardButton("إعادة التسمية ",callback_data="renm")], [InlineKeyboardButton("OCR صور",callback_data="OCR")],[InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR")],[InlineKeyboardButton("titled",callback_data="titled")]
+    
+    [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud"),InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
+[InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy"),InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
+    [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute"), InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
+    [InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty"),InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],
+    [InlineKeyboardButton("تغيير الصوت",callback_data="voicy"),InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], 
+    [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid"),InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],
+    [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
+    [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
+    [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("titled",callback_data="titled")]
+    
 ]
 CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
 CHOOSE_UR_DL_MODE_BUTTONS = [
@@ -77,7 +88,10 @@ CHOOSE_UR_SPEED_MODE_BUTTONS = [
      [InlineKeyboardButton("x1.75",callback_data="spd3")],
       [InlineKeyboardButton("x2",callback_data="spd4")]
 ]
-
+CHOOSE_UR_PDFMERGE_MODE = " بعد الانتهاء من إرسال الملفات اضغط دمج الآن "
+CHOOSE_UR_PDFMERGE_MODE_BUTTONS = [
+  [InlineKeyboardButton("دمج الآن ",callback_data="pdfmergenow")]
+]
 CHOOSE_UR_MERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
 CHOOSE_UR_MERGE_BUTTONS = [
     [InlineKeyboardButton("دمج الآن ",callback_data="mergenow")] ]
@@ -133,6 +147,7 @@ def _telegram_file(client, message):
   trimdir = f"./trimmo/{mp3file}"
   global result
   result = f"{nom}.txt"
+  
 
 
 
@@ -658,6 +673,44 @@ def callback_query(CLIENT,CallbackQuery):
          bot.send_document(aid, f)
     shutil.rmtree('./temp/') 
     cmd(f'''rm "{result}"''')
+  elif CallbackQuery.data == "pdfcompress":
+      CallbackQuery.edit_message_text("جار الضغط")
+      PDFNet.Initialize("demo:1676040759361:7d2a298a03000000006027df7c81c9e05abce088e7286e8312e5e06886"); doc = PDFDoc(f"{file_path}")
+      doc.InitSecurityHandler()
+      Optimizer.Optimize(doc)
+      doc.Save(f"{filename}", SDFDoc.e_linearized)
+      doc.Close()
+      with open(filename, 'rb') as f:
+         bot.send_document(user_id, f)
+      cmd(f''' unlink "{filename}" ''')
+      shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "pdfmerge":
+      pdfdir = f"pdfmerge/{filename}"
+      cmd("mkdir pdfmerge")
+      cmd(f'''mv "{file_path}" ./pdfmerge/''')
+      with open('pdfy.txt','a') as f:
+       f.write(f'''{pdfdir} \n''')  
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_PDFMERGE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_PDFMERGE_MODE_BUTTONS)
+
+        )
+  elif CallbackQuery.data == "pdfmergenow":
+      CallbackQuery.edit_message_text("جار الدمج")
+      with open("pdfy.txt", "r") as file:
+       for line in file:
+        pdfs.append(line.strip())
+      merger = PdfMerger()
+      for pdf in pdfs:
+       merger.append(pdf)
+      pdfmerged = f"{filename}.pdf"
+      merger.write(pdfmerged)
+      merger.close()
+      with open(pdfmerged,'rb') as f:
+          bot.send_document(user_id,f)
+      shutil.rmtree("./pdfmerge/")
+      cmd(f'''rm "{pdfmerged}" pdfy.txt''')
+
 
 
 
