@@ -11,6 +11,8 @@ from PyPDF2 import PdfFileWriter, PdfFileReader
 from pypdf import PdfMerger
 from PDFNetPython3.PDFNetPython import PDFDoc, Optimizer, SDFDoc, PDFNet
 ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
+global pdfs
+pdfs = []
 bot = Client(
     "audiobot",
     api_id=17983098,
