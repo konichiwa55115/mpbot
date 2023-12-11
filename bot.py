@@ -11,15 +11,13 @@ from PyPDF2 import PdfFileWriter, PdfFileReader
 from pypdf import PdfMerger
 from PDFNetPython3.PDFNetPython import PDFDoc, Optimizer, SDFDoc, PDFNet
 ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
-global pdfs
-pdfs = []
 bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
     bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
-#6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI
+#6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
@@ -127,8 +125,8 @@ def command2(bot,message):
 def _telegram_file(client, message):
   global user_id
   user_id = message.from_user.id
-  global file
-  file = message
+  global nepho
+  nepho = message
   global file_path
   file_path = message.download(file_name="./downloads/")
   global filename
@@ -297,10 +295,7 @@ def callback_query(CLIENT,CallbackQuery):
    shutil.rmtree('./downloads/') 
 
   elif CallbackQuery.data == "vidconv" :
-   CallbackQuery.edit_message_text(
-      
-      "جار التحويل "
-   ) 
+   CallbackQuery.edit_message_text("جار التحويل " ) 
    jid = user_id
    cmd(f'''ffmpeg -i "{file_path}" -codec copy "{mp4file}" -y ''')
    with open(mp4file, 'rb') as f:
@@ -309,11 +304,8 @@ def callback_query(CLIENT,CallbackQuery):
    shutil.rmtree('./downloads/') 
 
   elif CallbackQuery.data == "trim" :
-   file.reply_text("الآن أرسل نقطة البداية والنهاية بهذه الصورة \n\n hh:mm:ss/hh:mm:ss",reply_markup=ForceReply(True))
-   CallbackQuery.edit_message_text(
-      
-      "👇"
-   ) 
+   nepho.reply_text("الآن أرسل نقطة البداية والنهاية بهذه الصورة \n\n hh:mm:ss/hh:mm:ss",reply_markup=ForceReply(True))
+   CallbackQuery.edit_message_text("👇") 
   elif CallbackQuery.data == "mod1":
       amplemode = 5
       CallbackQuery.edit_message_text(
@@ -332,28 +324,20 @@ def callback_query(CLIENT,CallbackQuery):
       amplemode = 15
       CallbackQuery.edit_message_text(
              text = CHOOSE_UR_FILE_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
-
-        )
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS))
   elif CallbackQuery.data == "mod4" :
       amplemode = 20
       CallbackQuery.edit_message_text(
              text = CHOOSE_UR_FILE_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
-
-        )
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS))
   elif CallbackQuery.data == "mod5":
       amplemode = 25
       CallbackQuery.edit_message_text(
              text = CHOOSE_UR_FILE_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
-
-        )
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS) )
 
   elif CallbackQuery.data == "aud":
-    CallbackQuery.edit_message_text(
-     "جار التضخيم "
-      )
+    CallbackQuery.edit_message_text("جار التضخيم ")
     kid = user_id
     cmd(f'''ffmpeg -i "{file_path}" -filter:a volume={amplemode}dB "{filename}"''')
     with open(filename, 'rb') as f:
@@ -362,9 +346,7 @@ def callback_query(CLIENT,CallbackQuery):
     shutil.rmtree('./downloads/') 
 
   elif CallbackQuery.data == "vid":
-    CallbackQuery.edit_message_text(
-     "جار التضخيم "
-      )
+    CallbackQuery.edit_message_text("جار التضخيم " )
     lid = user_id
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/{mp3file}" -y ''')
     cmd(f'''ffmpeg -i "./downloads/{mp3file}" -filter:a volume={amplemode}dB "{mp3file}"''')
@@ -375,9 +357,7 @@ def callback_query(CLIENT,CallbackQuery):
     shutil.rmtree('./downloads/') 
 
   elif CallbackQuery.data == "audtrim":
-    CallbackQuery.edit_message_text(
-     "جار القص"
-      )  
+    CallbackQuery.edit_message_text("جار القص")  
     qid = user_id
     cmd(f'''mkdir trimmo''')  
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{trimdir}" -y ''')
@@ -389,9 +369,7 @@ def callback_query(CLIENT,CallbackQuery):
     shutil.rmtree('./trimmo/') 
       
   elif CallbackQuery.data == "vidtrim":
-    CallbackQuery.edit_message_text(
-     "جار القص"
-      )  
+    CallbackQuery.edit_message_text("جار القص")  
     rid = user_id
     cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -strict -2 -to {end_point} -c:a aac -codec:v h264 -b:v 1000k "{mp4file}" -y ''')
     with open(mp4file, 'rb') as f:
@@ -399,12 +377,8 @@ def callback_query(CLIENT,CallbackQuery):
     cmd(f'''unlink "{mp4file}" ''')
     shutil.rmtree('./downloads/') 
   elif CallbackQuery.data == "renm":
-    file.reply_text("الآن أدخل الاسم الجديد ",reply_markup=ForceReply(True))
-    CallbackQuery.edit_message_text(
-      
-      "👇"
-   ) 
-
+    nepho.reply_text("الآن أدخل الاسم الجديد ",reply_markup=ForceReply(True))
+    CallbackQuery.edit_message_text("👇") 
   elif CallbackQuery.data == "audrenm":
     CallbackQuery.edit_message_text("👇")
     aid = user_id
@@ -620,7 +594,7 @@ def callback_query(CLIENT,CallbackQuery):
     open(path, 'wb').write(data.content)
     text = pytesseract.image_to_string(file_path, lang=f"{lang_code}")
     textspaced = re.sub(r'\r\n|\r|\n', ' ', text)
-    file.reply(textspaced[:-1], quote=True, disable_web_page_preview=True)
+    nepho.reply(textspaced[:-1], quote=True, disable_web_page_preview=True)
     shutil.rmtree('./downloads/') 
   elif CallbackQuery.data == "pdfOCR":
     try: 
