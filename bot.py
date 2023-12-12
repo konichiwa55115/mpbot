@@ -692,6 +692,7 @@ def callback_query(CLIENT,CallbackQuery):
         )
   elif CallbackQuery.data == "pdfmergenow":
       CallbackQuery.edit_message_text("جار الدمج")
+      pdfs = []
       with open("pdfy.txt", "r") as file:
        for line in file:
         pdfs.append(line.strip())
