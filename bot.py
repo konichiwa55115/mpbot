@@ -18,6 +18,7 @@ bot = Client(
     bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
 #6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
+#5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
@@ -108,6 +109,9 @@ CHOOSE_UR_SUBS_MODE_BUTTONS = [
 CHOOSE_UR_MON_MODE = '''اختر ما يناسب'''
 CHOOSE_UR_MON_MODE_BUTTONS = [
     [InlineKeyboardButton("هذه الصورة",callback_data="thisisimage")], [InlineKeyboardButton("منتجة الآن",callback_data="montagnow")]]
+CHOOSE_UR_RESO_MODE = '''اختر ما يناسب'''
+CHOOSE_UR_RESO_MODE_BUTTONS = [
+    [InlineKeyboardButton("فيديو اعتيادي",callback_data="normalvideo")], [InlineKeyboardButton("YT Short",callback_data="ytshort")]]
 
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
@@ -227,10 +231,25 @@ def callback_query(CLIENT,CallbackQuery):
       shutil.rmtree('./downloads/') 
 
   elif  CallbackQuery.data == "montagnow":
+      global thisismontagaudio
+      thisismontagaudio = file_path
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_RESO_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_RESO_MODE_BUTTONS))
+  elif CallbackQuery.data == "normalvideo":
       CallbackQuery.edit_message_text("جار المنتجة ") 
       did = user_id
-      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
+      cmd(f'''ffmpeg -i "{thisismontagaudio}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
       cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "./downloads/imagetovid.jpg" -i "./downloads/temp{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
+      with open(mp4file, 'rb') as f:
+         bot.send_video(did, f)
+      cmd(f''' unlink "{mp4file}"''')
+      shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "ytshort":
+      CallbackQuery.edit_message_text("جار المنتجة ") 
+      did = user_id
+      cmd(f'''ffmpeg -i "{thisismontagaudio}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
+      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "./downloads/imagetovid.jpg" -i "./downloads/temp{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1080:1920 "{mp4file}"''')
       with open(mp4file, 'rb') as f:
          bot.send_video(did, f)
       cmd(f''' unlink "{mp4file}"''')
