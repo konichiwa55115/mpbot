@@ -7,7 +7,7 @@ from pyrogram.types import InlineKeyboardMarkup , InlineKeyboardButton , ReplyKe
 import shutil
 import pypdfium2 as pdfium
 from yt_dlp import YoutubeDL
-from PyPDF2 import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfWriter, PdfReader
 from pypdf import PdfMerger
 from PDFNetPython3.PDFNetPython import PDFDoc, Optimizer, SDFDoc, PDFNet
 ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
@@ -31,7 +31,8 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid"),InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],
     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
-    [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("titled",callback_data="titled")]
+    [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
+     [InlineKeyboardButton("titled",callback_data="titled")]
     
 ]
 CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
@@ -707,7 +708,10 @@ def callback_query(CLIENT,CallbackQuery):
       shutil.rmtree("./pdfmerge/")
       cmd(f'''rm "{pdfmerged}" pdfy.txt''')
 
-
+  elif CallbackQuery.data == "pdftrim":
+      CallbackQuery.edit_message_text("👇")
+      nepho.reply_text(" الآن أرسل نقطة البداية والنهاية بهذه الصورة \n start-end ",reply_markup=ForceReply(True))
+      
 
 
 
@@ -726,6 +730,7 @@ async def refunc(client,message):
 @bot.on_message(filters.private & filters.reply & filters.regex('/'))
 async def refunc(client,message):
    if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          nepho.delete()
           endstart = message.text ;await message.delete()
           global strt_point
           global end_point
@@ -736,6 +741,28 @@ async def refunc(client,message):
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILETRIM_MODE_BUTTONS)
 
         )
+@bot.on_message(filters.private & filters.reply & filters.regex("-"))
+async def refunc(client,message):
+   if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          pstartpend = message.text ;await message.delete()
+          global pdfstrt_point
+          global pdfend_point
+          startend = re.split('-',pstartpend)
+          pdfstrt_point=int(startend[0])
+          pdfend_point = int(startend[1])
+          pages = (pdfstrt_point, pdfend_point)
+          reader = PdfReader(file_path)
+          writer = PdfWriter()
+          page_range = range(pages[0], pages[1] + 1)
+          for page_num, page in enumerate(reader.pages, 1):
+           if page_num in page_range:
+            writer.add_page(page)
+           with open(filename, 'wb') as out:
+            writer.write(out)
+          with open(filename,'rb') as f : 
+            await bot.send_document(user_id,f)
+          shutil.rmtree("./downloads/")
+          os.remove(filename)
 @bot.on_message(filters.private & filters.reply )
 async def refunc(client,message):
    if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
