@@ -1,27 +1,47 @@
-import os
+import os ,re
 from pyrogram import Client, filters
+import requests
+import pytesseract
 from os import system as cmd
 from pyrogram.types import InlineKeyboardMarkup , InlineKeyboardButton , ReplyKeyboardMarkup , CallbackQuery , ForceReply
 import shutil
+import pypdfium2 as pdfium
+from yt_dlp import YoutubeDL
+from PyPDF2 import PdfWriter, PdfReader
+from pypdf import PdfMerger
+from PDFNetPython3.PDFNetPython import PDFDoc, Optimizer, SDFDoc, PDFNet
+ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="5714654934:AAEVIR8baWhJcgUOtWeNmrSjvdRfYRiY7tI"
+    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
+#6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
+#5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
-    [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud")],[InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
-    [InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy")],[InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
-     [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")], [InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
-    [InlineKeyboardButton(" دمج صوتيات / فيديوهات",callback_data="fullmerge")],  [InlineKeyboardButton("إعادة التسمية ",callback_data="renm")]
-   
-   #
-     
-
+    
+    [InlineKeyboardButton("تضخيم صوتية / فيديو ",callback_data="amplifyaud"),InlineKeyboardButton("قص صوتية / فيديو ",callback_data="trim")],
+[InlineKeyboardButton("تسريع صوتية / فيديو ",callback_data="speedy"),InlineKeyboardButton("تحويل صوتية / فيديو ",callback_data="conv")], 
+    [InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute"), InlineKeyboardButton("ضغط الصوتية ",callback_data="comp")],
+    [InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty"),InlineKeyboardButton("دمج صوتيات ",callback_data="audmerge")],
+    [InlineKeyboardButton("تغيير الصوت",callback_data="voicy"),InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs")], 
+    [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid"),InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe")],
+    [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
+    [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
+    [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
+     [InlineKeyboardButton("إزالة موسيقا",callback_data="musicremove"),InlineKeyboardButton("titled",callback_data="titled")]
+    
 ]
-
+CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
+CHOOSE_UR_DL_MODE_BUTTONS = [
+    [InlineKeyboardButton("VIDEO 360P",callback_data="vid360")],
+    [InlineKeyboardButton("VIDEO 720P ",callback_data="vid720")],
+    [InlineKeyboardButton("AUDIO",callback_data="auddl")],
+    
+]
 CHOOSE_UR_AMPLE_MODE = "اختر نمط التضخيم "
 CHOOSE_UR_AMPLE_MODE_BUTTONS = [
     [InlineKeyboardButton("5db",callback_data="mod1")],
@@ -45,17 +65,17 @@ CHOOSE_UR_FILE_MODE_BUTTONS = [
     [InlineKeyboardButton("صوتية",callback_data="aud")],
      [InlineKeyboardButton("فيديو ",callback_data="vid")]
 ]
-CHOOSE_UR_FILEVIDMERGE_MODE = "اختر نوع الدمج "
-CHOOSE_UR_FILEVIDMERGE_MODE_BUTTONS = [
-    [InlineKeyboardButton("صوتيات",callback_data="audmerge")],
-     [InlineKeyboardButton("فيديوهات ",callback_data="vidmerge")]
-]
 
 CHOOSE_UR_FILETRIM_MODE = "اختر نوع ملفك "
 CHOOSE_UR_FILETRIM_MODE_BUTTONS = [
     [InlineKeyboardButton("صوتية",callback_data="audtrim")],
      [InlineKeyboardButton("فيديو ",callback_data="vidtrim")]
      ]
+CHOOSE_UR_MUSIC_MODE = "الآن اختر نوع ملفك " 
+CHOOSE_UR_MUSIC_MODE_BUTTONS = [
+
+ [ InlineKeyboardButton("فيديو",callback_data="musicvid"),InlineKeyboardButton("صوتية",callback_data="musicaud")]
+]
 CHOOSE_UR_FILERENM_MODE = "اختر نوع ملفك "
 CHOOSE_UR_FILERENM_MODE_BUTTONS = [
     [InlineKeyboardButton("صوتية",callback_data="audrenm")],
@@ -75,31 +95,48 @@ CHOOSE_UR_SPEED_MODE_BUTTONS = [
      [InlineKeyboardButton("x1.75",callback_data="spd3")],
       [InlineKeyboardButton("x2",callback_data="spd4")]
 ]
+CHOOSE_UR_PDFMERGE_MODE = " بعد الانتهاء من إرسال الملفات اضغط دمج الآن "
+CHOOSE_UR_PDFMERGE_MODE_BUTTONS = [
+  [InlineKeyboardButton("دمج الآن ",callback_data="pdfmergenow")]
+]
 CHOOSE_UR_MERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
 CHOOSE_UR_MERGE_BUTTONS = [
     [InlineKeyboardButton("دمج الآن ",callback_data="mergenow")] ]
 
-CHOOSE_UR_VIDNOWMERGE = "أرسل الصوتية التالية  \n تنبيه / بعد الانتهاء من إرسال الصوتيات اضغط دمج الآن "
-CHOOSE_UR_VIDNOWMERGE_BUTTONS = [
-    [InlineKeyboardButton("دمج الآن ",callback_data="vidmergenow")] ]
-
 CHOOSE_UR_CONV_MODE = "اختر نمط التحويل"
 CHOOSE_UR_CONV_MODE_BUTTONS = [
     [InlineKeyboardButton("تحويل صوتية/ فيديو إلى mp3",callback_data="audconv")],
+     [InlineKeyboardButton("تحويل صوتية/ فيديو إلى m4a",callback_data="audconvm4a")],
     [InlineKeyboardButton("تحويل فيديو إلى mp4 ",callback_data="vidconv")]
 ]
-
+CHOOSE_UR_SUBS_MODE = '''اختر ما يناسب'''
+CHOOSE_UR_SUBS_MODE_BUTTONS = [
+    [InlineKeyboardButton("هذا الفيديو",callback_data="thisisvid")], [InlineKeyboardButton("إبدال الآن",callback_data="subsnow")]]
+CHOOSE_UR_MON_MODE = '''اختر ما يناسب'''
+CHOOSE_UR_MON_MODE_BUTTONS = [
+    [InlineKeyboardButton("هذه الصورة",callback_data="thisisimage")], [InlineKeyboardButton("منتجة الآن",callback_data="montagnow")]]
+CHOOSE_UR_RESO_MODE = '''اختر ما يناسب'''
+CHOOSE_UR_RESO_MODE_BUTTONS = [
+    [InlineKeyboardButton("فيديو اعتيادي",callback_data="normalvideo")], [InlineKeyboardButton("YT Short",callback_data="ytshort")]]
 
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
     bot.send_message(message.chat.id, " السلام عليكم أنا بوت متعدد الاستعمالات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/sunnay6626/2 ",disable_web_page_preview=True)
+@bot.on_message(filters.command('ytdl') & filters.private)
+def command2(bot,message):
+     message.reply_text("الآن أرسل الرابط \n\n",reply_markup=ForceReply(True))
+     global yt_id
+     yt_id = message.from_user.id
+@bot.on_message(filters.command('clear') & filters.private)
+def command2(bot,message):
+    cmd('''rm list.txt ''')
     
-@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document )
+@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo )
 def _telegram_file(client, message):
   global user_id
   user_id = message.from_user.id
-  global file
-  file = message
+  global nepho
+  nepho = message
   global file_path
   file_path = message.download(file_name="./downloads/")
   global filename
@@ -111,11 +148,17 @@ def _telegram_file(client, message):
   mp4file = f"{nom}.mp4"
   global mp3file
   mp3file = f"{nom}.mp3"
+  global m4afile
+  m4afile = f"{nom}.m4a"
   global spdrateaud
   global mergdir
-  global mergodir
+  global trimdir
   mergdir = f"./mergy/{mp3file}"
-  mergodir = f"./downloads/{filename}"
+  trimdir = f"./trimmo/{mp3file}"
+  global result
+  result = f"{nom}.txt"
+  
+
 
 
   message.reply(
@@ -143,34 +186,116 @@ def callback_query(CLIENT,CallbackQuery):
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_COMP_MODE_BUTTONS) )
   elif  CallbackQuery.data == "compmod1":
     CallbackQuery.edit_message_text("جار الضغط ") 
+    aid = user_id
     cmd(f''' ffmpeg -i "{file_path}" -b:a 10k "{mp3file}" -y ''' )
     with open(mp3file, 'rb') as f:
-         bot.send_audio(user_id, f)
-    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+         bot.send_audio(aid, f)
+    cmd(f'''unlink "{mp3file}" ''')
+    shutil.rmtree('./downloads/') 
+  elif  CallbackQuery.data == "titled":
+      cmd(f'''mv "{file_path}" "{filename}"''')
+      with open(filename, 'rb') as f:
+         bot.send_document(user_id, f)
+      CallbackQuery.edit_message_text("تم الإرسال  ") 
+      cmd(f'''rm "{filename}"''')
+
+  elif  CallbackQuery.data == "voicy":   
+    CallbackQuery.edit_message_text("جار تغيير الصوت ") 
+    bid = user_id
+    cmd(f'''ffmpeg -i "{file_path}" -af asetrate=44100*0.9,aresample=44100,atempo=1/0.9 "{mp3file}"''')
+    with open(mp3file, 'rb') as f:
+         bot.send_audio(bid, f)
+    cmd(f'''unlink "{mp3file}" ''')
+    shutil.rmtree('./downloads/') 
+
+  elif  CallbackQuery.data == "thisisvid":
+     cmd(f'''mv "{file_path}" "./downloads/subsvid.mp4" ''')
+     CallbackQuery.edit_message_text("الآن أرسل الصوت الجديد ثم اختر إبدال الآن") 
+  elif  CallbackQuery.data == "thisisimage":
+     cmd(f'''mv "{file_path}" "./downloads/imagetovid.jpg" ''')
+     CallbackQuery.edit_message_text("الآن أرسل الصوت  ثم اختر منتجة الآن") 
+
+  elif  CallbackQuery.data == "subs":
+     CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_SUBS_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_SUBS_MODE_BUTTONS)
+
+        )
+  elif  CallbackQuery.data == "imagetovid":
+     CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_MON_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MON_MODE_BUTTONS)
+
+        )
+  elif  CallbackQuery.data == "subsnow":
+      CallbackQuery.edit_message_text("جار الإبدال ") 
+      cid = user_id
+      cmd(f'''ffmpeg -i "./downloads/subsvid.mp4" -i "{file_path}" -c:v copy -map 0:v:0 -map 1:a:0 "{mp4file}"''')
+      with open(mp4file, 'rb') as f:
+         bot.send_video(cid, f)
+      cmd(f''' unlink "{mp4file}"''')
+      shutil.rmtree('./downloads/') 
+
+  elif  CallbackQuery.data == "montagnow":
+      global thisismontagaudio
+      thisismontagaudio = file_path
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_RESO_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_RESO_MODE_BUTTONS))
+  elif CallbackQuery.data == "normalvideo":
+      CallbackQuery.edit_message_text("جار المنتجة ") 
+      did = user_id
+      cmd(f'''ffmpeg -i "{thisismontagaudio}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
+      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "./downloads/imagetovid.jpg" -i "./downloads/temp{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
+      with open(mp4file, 'rb') as f:
+         bot.send_video(did, f)
+      cmd(f''' unlink "{mp4file}"''')
+      shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "ytshort":
+      CallbackQuery.edit_message_text("جار المنتجة ") 
+      did = user_id
+      cmd(f'''ffmpeg -i "{thisismontagaudio}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
+      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "./downloads/imagetovid.jpg" -i "./downloads/temp{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1080:1920 "{mp4file}"''')
+      with open(mp4file, 'rb') as f:
+         bot.send_video(did, f)
+      cmd(f''' unlink "{mp4file}"''')
+      shutil.rmtree('./downloads/') 
   elif  CallbackQuery.data == "compmod2":
     CallbackQuery.edit_message_text("جار الضغط ") 
     cmd(f''' ffmpeg -i "{file_path}" -b:a 20k "{mp3file}" -y ''' )
+    eid = user_id
     with open(mp3file, 'rb') as f:
-         bot.send_audio(user_id, f)
-    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+         bot.send_audio(eid, f)
+    cmd(f'''unlink "{mp3file}" ''')
+    shutil.rmtree('./downloads/') 
+
   elif  CallbackQuery.data == "compmod3":
+    fid = user_id
     CallbackQuery.edit_message_text("جار الضغط ") 
     cmd(f''' ffmpeg -i "{file_path}" -b:a 30k "{mp3file}" -y ''' )
     with open(mp3file, 'rb') as f:
-         bot.send_audio(user_id, f)
-    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+         bot.send_audio(fid, f)
+    cmd(f'''unlink "{mp3file}" ''')
+    shutil.rmtree('./downloads/') 
+
   elif  CallbackQuery.data == "compmod4":
     CallbackQuery.edit_message_text("جار الضغط ") 
+    gid = user_id
     cmd(f''' ffmpeg -i "{file_path}" -b:a 40k "{mp3file}" -y ''' )
     with open(mp3file, 'rb') as f:
-         bot.send_audio(user_id, f)
-    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+         bot.send_audio(gid, f)
+    cmd(f''' unlink "{mp3file}" ''')
+    shutil.rmtree('./downloads/') 
+
   elif  CallbackQuery.data == "compmod5":
+    hid = user_id
     CallbackQuery.edit_message_text("جار الضغط ") 
     cmd(f''' ffmpeg -i "{file_path}" -b:a 50k "{mp3file}" -y ''' )
     with open(mp3file, 'rb') as f:
-         bot.send_audio(user_id, f)
-    cmd(f''' unlink "{file_path}" && unlink "{mp3file}" ''')
+         bot.send_audio(hid, f)
+    cmd(f'''unlink "{mp3file}" ''')
+    shutil.rmtree('./downloads/') 
+
   elif CallbackQuery.data == "conv" :
     CallbackQuery.edit_message_text(
              text = CHOOSE_UR_CONV_MODE,
@@ -178,29 +303,34 @@ def callback_query(CLIENT,CallbackQuery):
 
         )
   elif CallbackQuery.data == "audconv" :
-   CallbackQuery.edit_message_text(
-      
-      "جار التحويل "
-   ) 
+   CallbackQuery.edit_message_text("جار التحويل ") 
+   iid = user_id
    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')
    with open(mp3file, 'rb') as f:
-        bot.send_audio(user_id, f)
-   cmd(f'''unlink "{file_path}" && unlink "{mp3file}" ''')
+        bot.send_audio(iid, f)
+   cmd(f'''unlink "{mp3file}" ''')
+   shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "audconvm4a" :
+   CallbackQuery.edit_message_text("جار التحويل ") 
+   lamid = user_id
+   cmd(f'''ffmpeg -i "{file_path}" -c:a aac -b:a 192k "{m4afile}" -y ''')
+   with open(m4afile, 'rb') as f:
+        bot.send_document(lamid, f)
+   cmd(f'''unlink "{m4afile}" ''')
+   shutil.rmtree('./downloads/') 
+
   elif CallbackQuery.data == "vidconv" :
-   CallbackQuery.edit_message_text(
-      
-      "جار التحويل "
-   ) 
+   CallbackQuery.edit_message_text("جار التحويل " ) 
+   jid = user_id
    cmd(f'''ffmpeg -i "{file_path}" -codec copy "{mp4file}" -y ''')
    with open(mp4file, 'rb') as f:
-        bot.send_video(user_id, f)
-   cmd(f'''unlink "{file_path}" && unlink "{mp4file}" ''')
+        bot.send_video(jid, f)
+   cmd(f'''unlink "{mp4file}" ''')
+   shutil.rmtree('./downloads/') 
+
   elif CallbackQuery.data == "trim" :
-   file.reply_text("الآن أرسل نقطة البداية والنهاية بهذه الصورة \n\n hh:mm:ss/hh:mm:ss",reply_markup=ForceReply(True))
-   CallbackQuery.edit_message_text(
-      
-      "👇"
-   ) 
+   nepho.reply_text("الآن أرسل نقطة البداية والنهاية بهذه الصورة \n\n hh:mm:ss/hh:mm:ss",reply_markup=ForceReply(True))
+   CallbackQuery.edit_message_text("👇") 
   elif CallbackQuery.data == "mod1":
       amplemode = 5
       CallbackQuery.edit_message_text(
@@ -219,87 +349,112 @@ def callback_query(CLIENT,CallbackQuery):
       amplemode = 15
       CallbackQuery.edit_message_text(
              text = CHOOSE_UR_FILE_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
-
-        )
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS))
   elif CallbackQuery.data == "mod4" :
       amplemode = 20
       CallbackQuery.edit_message_text(
              text = CHOOSE_UR_FILE_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
-
-        )
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS))
   elif CallbackQuery.data == "mod5":
       amplemode = 25
       CallbackQuery.edit_message_text(
              text = CHOOSE_UR_FILE_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS)
-
-        )
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILE_MODE_BUTTONS) )
 
   elif CallbackQuery.data == "aud":
-    CallbackQuery.edit_message_text(
-     "جار التضخيم "
-      )
+    CallbackQuery.edit_message_text("جار التضخيم ")
+    kid = user_id
     cmd(f'''ffmpeg -i "{file_path}" -filter:a volume={amplemode}dB "{filename}"''')
     with open(filename, 'rb') as f:
-        bot.send_audio(user_id, f)
-    cmd(f'''unlink "{filename}" && unlink "{file_path}"''')
-  
+        bot.send_audio(kid, f)
+    cmd(f'''unlink "{filename}" ''')
+    shutil.rmtree('./downloads/') 
+
   elif CallbackQuery.data == "vid":
-    CallbackQuery.edit_message_text(
-     "جار التضخيم "
-      )
+    CallbackQuery.edit_message_text("جار التضخيم " )
+    lid = user_id
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./downloads/{mp3file}" -y ''')
     cmd(f'''ffmpeg -i "./downloads/{mp3file}" -filter:a volume={amplemode}dB "{mp3file}"''')
     cmd(f'''ffmpeg -i "{file_path}" -i "{mp3file}" -c:v copy -map 0:v:0 -map 1:a:0 "{filename}"''')
     with open(filename, 'rb') as f:
-        bot.send_video(user_id, f)
-    cmd(f'''unlink "{filename}" && unlink "{file_path}"''')    
-  elif CallbackQuery.data == "audtrim":
-    CallbackQuery.edit_message_text(
-     "جار القص"
-      )  
-    cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -to {end_point} -c copy "{mp3file}" -y ''')
-    with open(mp3file, 'rb') as f:
-            bot.send_audio(user_id, f)
-    cmd(f'''unlink "{file_path}" && unlink "{mp3file}"''')
-  elif CallbackQuery.data == "vidtrim":
-    CallbackQuery.edit_message_text(
-     "جار القص"
-      )  
-    cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -to {end_point} -c copy "{mp4file}" -y ''')
-    with open(mp4file, 'rb') as f:
-            bot.send_video(user_id, f)
-    cmd(f'''unlink "{file_path}" && unlink "{mp4file}" ''')
-  elif CallbackQuery.data == "renm":
-    file.reply_text("الآن أدخل الاسم الجديد ",reply_markup=ForceReply(True))
-    CallbackQuery.edit_message_text(
-      
-      "👇"
-   ) 
+        bot.send_video(lid, f)
+    cmd(f'''unlink "{filename}" ''')    
+    shutil.rmtree('./downloads/') 
 
+  elif CallbackQuery.data == "audtrim":
+    CallbackQuery.edit_message_text("جار القص")  
+    qid = user_id
+    cmd(f'''mkdir trimmo''')  
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{trimdir}" -y ''')
+    cmd(f'''ffmpeg -i "{trimdir}" -ss {strt_point} -to {end_point} -c copy "{mp3file}" -y ''')
+    with open(mp3file, 'rb') as f:
+            bot.send_audio(qid, f)
+    cmd(f'''unlink "{mp3file}"''')
+    shutil.rmtree('./downloads/') 
+    shutil.rmtree('./trimmo/') 
+      
+  elif CallbackQuery.data == "vidtrim":
+    CallbackQuery.edit_message_text("جار القص")  
+    rid = user_id
+    cmd(f'''ffmpeg -i "{file_path}" -ss {strt_point} -strict -2 -to {end_point} -c:a aac -codec:v h264 -b:v 1000k "{mp4file}" -y ''')
+    with open(mp4file, 'rb') as f:
+            bot.send_video(rid, f)
+    cmd(f'''unlink "{mp4file}" ''')
+    shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "renm":
+    nepho.reply_text("الآن أدخل الاسم الجديد ",reply_markup=ForceReply(True))
+    CallbackQuery.edit_message_text("👇") 
   elif CallbackQuery.data == "audrenm":
     CallbackQuery.edit_message_text("👇")
+    aid = user_id
     with open(newfile, 'rb') as f:
-             bot.send_audio(user_id, f)
+             bot.send_audio(aid, f)
     cmd(f'''unlink "{newfile}" ''')
   elif CallbackQuery.data == "vidrenm":
     CallbackQuery.edit_message_text("👇")
+    aid = user_id
     with open(newfile, 'rb') as f:
-             bot.send_video(user_id, f)
+             bot.send_video(aid, f)
     cmd(f'''unlink "{newfile}" ''')
   elif CallbackQuery.data == "docrenm":
     CallbackQuery.edit_message_text("👇")
+    aid = user_id
     with open(newfile, 'rb') as f:
-             bot.send_document(user_id, f)
+             bot.send_document(aid, f)
     cmd(f'''unlink "{newfile}" ''')
+  elif CallbackQuery.data == "transcribe":
+    try: 
+      with open('transcription.txt', 'r') as fh:
+        if os.stat('transcription.txt').st_size == 0: 
+            pass
+        else:
+            CallbackQuery.edit_message_text("هناك عملية تفريغ تتم الآن")
+            return
+    except FileNotFoundError: 
+      pass  
+    CallbackQuery.edit_message_text("جار التفريغ")
+    finalid = user_id
+    finalnom = result
+    finalmp3 = mp3file
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')  
+    cmd(f'''python3 speech.py RK3ETXWBJQSMO262RXPAIXFSG6NH3QRH "{finalmp3}" "transcription.txt" ''')
+    cmd(f'''mv transcription.txt "{finalnom}"''')
+    with open(finalnom, 'rb') as f:
+        bot.send_document(finalid, f)
+    CallbackQuery.edit_message_text("تم التفريغ ✅  ")   
+    cmd(f'''rm "{finalnom}" "{finalmp3}"''')
+    shutil.rmtree('./downloads/')
+
+    
   elif CallbackQuery.data == "mute":
     CallbackQuery.edit_message_text("جار الكتم")
+    aid = user_id
     cmd(f'''ffmpeg -i "{file_path}" -c copy -an "{mp4file}"''')
     with open(mp4file, 'rb') as f:
-             bot.send_document(user_id, f)
-    cmd(f'''unlink "{mp4file}" && unlink "{file_path}"''')
+             bot.send_document(aid, f)
+    cmd(f'''unlink "{mp4file}" ''')
+    shutil.rmtree('./downloads/') 
+
   elif CallbackQuery.data == "speedy":
      CallbackQuery.edit_message_text(
              text = CHOOSE_UR_SPEED_MODE,
@@ -338,64 +493,277 @@ def callback_query(CLIENT,CallbackQuery):
         )
   elif CallbackQuery.data == "speedfileaud":
     CallbackQuery.edit_message_text("جار التسريع")
+    aid = user_id
     cmd(f'''ffmpeg -i {file_path} -filter:a "atempo={spdrateaud}" -vn {mp3file} -y ''')
     with open(mp3file, 'rb') as f:
-             bot.send_audio(user_id, f)
-    cmd(f'''unlink "{mp3file}" && unlink "{file_path}"''')
+             bot.send_audio(aid, f)
+    cmd(f'''unlink "{mp3file}" ''')
+    shutil.rmtree('./downloads/') 
+  
+  elif CallbackQuery.data == "vid360":
+    CallbackQuery.edit_message_text("جار التنزيل")
+    with YoutubeDL() as ydl: 
+        info_dict = ydl.extract_info(f'{ytlink}', download=False)
+        video_url = info_dict.get("url", None)
+        video_id = info_dict.get("id", None)
+        video_title = info_dict.get('title', None)    
+    cmd(f'''yt-dlp -f 18 -ciw  -o "{video_title}.mp4" "{ytlink}"''')
+    with open(f'''{video_title}.mp4''', 'rb') as f:
+          bot.send_video(yt_id, f,caption=video_title)
+    cmd(f'''rm "{video_title}.mp4" ''' ) 
+  elif CallbackQuery.data == "vid720":
+    CallbackQuery.edit_message_text("جار التنزيل")
+    with YoutubeDL() as ydl: 
+        info_dict = ydl.extract_info(f'{ytlink}', download=False)
+        video_url = info_dict.get("url", None)
+        video_id = info_dict.get("id", None)
+        video_title = info_dict.get('title', None)    
+    cmd(f'''yt-dlp -f 22 -ciw  -o "{video_title}.mp4" "{ytlink}"''')
+    with open(f'''{video_title}.mp4''', 'rb') as f:
+          bot.send_video(yt_id, f,caption=video_title)
+    cmd(f'''rm "{video_title}.mp4" ''' ) 
+  elif CallbackQuery.data == "auddl":
+    CallbackQuery.edit_message_text("جار التنزيل")
+    with YoutubeDL() as ydl: 
+        info_dict = ydl.extract_info(f'{ytlink}', download=False)
+        video_url = info_dict.get("url", None)
+        video_id = info_dict.get("id", None)
+        video_title = info_dict.get('title', None)    
+    cmd(f'''yt-dlp -ciw  --extract-audio --audio-format mp3  -o "{video_title}.mp3"  "{ytlink}"''')
+    with open(f'''{video_title}.mp3''', 'rb') as f:
+          bot.send_audio(yt_id, f,caption=video_title)
+    cmd(f'''rm "{video_title}.mp3" ''' ) 
+
   elif CallbackQuery.data == "speedfilevid":
     CallbackQuery.edit_message_text("جار التسريع")
+    aid = user_id
     cmd(f'''ffmpeg -i {file_path} -filter_complex "[0:v]setpts={spdratevid}*PTS[v];[0:a]atempo={spdrateaud}[a]" -map "[v]" -map "[a]" {mp4file} -y ''')
     with open(mp4file, 'rb') as f:
-             bot.send_video(user_id, f)
-    cmd(f'''unlink "{mp4file}" && unlink "{file_path}"''')
+             bot.send_video(aid, f)
+    cmd(f'''unlink "{mp4file}" ''')
+    shutil.rmtree('./downloads/') 
+
   elif CallbackQuery.data == "audmerge":
     cmd(f'''mkdir mergy''')
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mergdir}" -y ''')
+    shutil.rmtree('./downloads/') 
     with open('list.txt','a') as f:
       f.write(f'''file '{mergdir}' \n''')
     CallbackQuery.edit_message_text(
              text = CHOOSE_UR_MERGE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MERGE_BUTTONS))
-    ######################
-  elif CallbackQuery.data == "vidmerge":
-    with open('vidlist.txt','a') as f:
-      f.write(f'''file {mergodir} \n''')
-    CallbackQuery.edit_message_text(
-             text = CHOOSE_UR_VIDNOWMERGE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_VIDNOWMERGE_BUTTONS))
-#########################
-  elif CallbackQuery.data == "fullmerge":
-    CallbackQuery.edit_message_text(
-             text = CHOOSE_UR_FILEVIDMERGE_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILEVIDMERGE_MODE_BUTTONS))
-
-  elif CallbackQuery.data == "vidmergenow":
-    CallbackQuery.edit_message_text("جار الدمج")   
-    cmd(f'''ffmpeg -f concat -safe 0 -i vidlist.txt "{mp4file}" -y ''')
-    with open(mp4file, 'rb') as f:
-         bot.send_video(user_id, f)
-    cmd(f'''rm vidlist.txt && rm "{mp4file}" ''')
-    shutil.rmtree('./downloads/')
-
-  ############
   elif CallbackQuery.data == "mergenow":
-    CallbackQuery.edit_message_text("جار الدمج")   
+    CallbackQuery.edit_message_text("جار الدمج") 
+    aid = user_id  
     cmd(f'''ffmpeg -f concat -safe 0 -i list.txt "{mp3file}" -y ''')
     with open(mp3file, 'rb') as f:
-         bot.send_audio(user_id, f)
-    cmd(f'''rm list.txt && rm "{mp3file}" ''')
+         bot.send_audio(aid, f)
+    cmd(f'''rm list.txt "{mp3file}" ''')
     shutil.rmtree('./downloads/')
     shutil.rmtree('./mergy/') 
+  elif CallbackQuery.data == "splitty":
+    CallbackQuery.edit_message_text("جار التقسيم") 
+    aid = user_id 
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a mod.mp3 -y''')
+    cmd(f'mkdir parts')
+    cmd(f'''ffmpeg -i "mod.mp3" -f segment -segment_time 300 -c copy "./parts/{nom}%09d.wav" -y''')
+    dir_path = "./parts/"
+    count = 0
+    for path in os.listdir(dir_path):
+        if os.path.isfile(os.path.join(dir_path, path)):
+                            count += 1
+                            numbofitems=count
+    if numbofitems<10 :
+        
+     coca=0
+     while (coca < numbofitems): 
+             pathy=f"./parts/{nom}00000000{coca}.wav"
+             reso = f"{nom}00000000{coca}.mp3"
+             cmd(f'''ffmpeg -i "{pathy}" -q:a 0 -map a "{reso}" -y''')
+             with open(reso, 'rb') as f:
+               bot.send_audio(aid, f)
+             cmd(f'''rm "{reso}"''') 
+             coca += 1 
+    else :
+     coca=0 
+     while (coca < 10): 
+             pathy=f"./parts/{nom}00000000{coca}.wav"
+             reso = f"{nom}00000000{coca}.mp3"
+             cmd(f'''ffmpeg -i "{pathy}" -q:a 0 -map a "{reso}" -y''')
+             with open(reso, 'rb') as f:
+               bot.send_audio(aid, f)
+             cmd(f'''rm "{reso}"''') 
+             coca += 1        
+     coca=10
+     while (coca < numbofitems ): 
+             pathy=f"./parts/{nom}0000000{coca}.wav"
+             reso = f"{nom}00000000{coca}.mp3"
+             cmd(f'''ffmpeg -i "{pathy}" -q:a 0 -map a "{reso}" -y''')
+             with open(reso, 'rb') as f:
+               bot.send_audio(aid, f)
+             cmd(f'''rm "{reso}"''') 
+             coca += 1                                      
+    shutil.rmtree('./downloads/')
+    shutil.rmtree('./parts/') 
+    cmd(f'''rm mod.mp3''')
+    
+  elif CallbackQuery.data == "OCR":
+   
+    aid = user_id
+    CallbackQuery.edit_message_text("جار التفريغ")
+    lang_code = "ara"
+    data_url = f"https://github.com/tesseract-ocr/tessdata/raw/main/{lang_code}.traineddata"
+    dirs = r"/usr/share/tesseract-ocr/4.00/tessdata"
+    path = os.path.join(dirs, f"{lang_code}.traineddata")
+    data = requests.get(data_url, allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'})
+    open(path, 'wb').write(data.content)
+    text = pytesseract.image_to_string(file_path, lang=f"{lang_code}")
+    textspaced = re.sub(r'\r\n|\r|\n', ' ', text)
+    nepho.reply(textspaced[:-1], quote=True, disable_web_page_preview=True)
+    shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "pdfOCR":
+    try: 
+      with open('final.txt', 'r') as fh:
+        if os.stat('final.txt').st_size == 0: 
+            pass
+        else:
+            CallbackQuery.edit_message_text("هناك تفريغ يتم الآن ") 
+            return
+    except FileNotFoundError: 
+     pass  
+    aid = user_id
+    CallbackQuery.edit_message_text("جار التفريغ")
+    cmd('mkdir temp')
+    pdf = pdfium.PdfDocument(file_path)
+    n_pages = len(pdf)
+    for page_number in range(n_pages):
+     page = pdf.get_page(page_number)
+     pil_image = page.render_topil(
+        scale=1,
+        rotation=0,
+        crop=(0, 0, 0, 0),
+        colour=(255, 255, 255, 255),
+        annotations=True,
+        greyscale=False,
+        optimise_mode=pdfium.OptimiseMode.NONE,
+    )
+     pil_image.save(f"./temp/image_{page_number+1}.png")
+    shutil.rmtree('./downloads/') 
+    count = 0
+    for path in os.listdir("./temp/"):
+                if os.path.isfile(os.path.join("./temp/", path)):
+                            count += 1
+                            numbofitems=count
+    coca=1
+    final = numbofitems 
+    while (coca < final): 
+     cmd(f'''sh textcleaner -g "./temp/image_{coca}.png" temp.png ''')
+     lang_code = "ara"
+     data_url = f"https://github.com/tesseract-ocr/tessdata/raw/main/{lang_code}.traineddata"
+     dirs = r"/usr/share/tesseract-ocr/4.00/tessdata"
+     path = os.path.join(dirs, f"{lang_code}.traineddata")
+     data = requests.get(data_url, allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'})
+     open(path, 'wb').write(data.content)
+     text = pytesseract.image_to_string(f"temp.png" , lang=f"{lang_code}")
+     textspaced = re.sub(r'\r\n|\r|\n', ' ', text)
+     with open("final.txt",'a') as f:
+      f.write(f'''{textspaced} \n''')
+     coca +=1
+    cmd(f'''mv final.txt "{result}"''')
+    with open(result, 'rb') as f:
+         bot.send_document(aid, f)
+    shutil.rmtree('./temp/') 
+    cmd(f'''rm "{result}"''')
+  elif CallbackQuery.data == "pdfcompress":
+      CallbackQuery.edit_message_text("جار الضغط")
+      PDFNet.Initialize("demo:1676040759361:7d2a298a03000000006027df7c81c9e05abce088e7286e8312e5e06886"); doc = PDFDoc(f"{file_path}")
+      doc.InitSecurityHandler()
+      Optimizer.Optimize(doc)
+      doc.Save(f"{filename}", SDFDoc.e_linearized)
+      doc.Close()
+      with open(filename, 'rb') as f:
+         bot.send_document(user_id, f)
+      cmd(f''' unlink "{filename}" ''')
+      shutil.rmtree('./downloads/') 
+  elif CallbackQuery.data == "pdfmerge":
+      pdfdir = f"pdfmerge/{filename}"
+      cmd("mkdir pdfmerge")
+      cmd(f'''mv "{file_path}" ./pdfmerge/''')
+      with open('pdfy.txt','a') as f:
+       f.write(f'''{pdfdir} \n''')  
+      CallbackQuery.edit_message_text(
+             text = CHOOSE_UR_PDFMERGE_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_PDFMERGE_MODE_BUTTONS)
+
+        )
+  elif CallbackQuery.data == "pdfmergenow":
+      CallbackQuery.edit_message_text("جار الدمج")
+      pdfs = []
+      with open("pdfy.txt", "r") as file:
+       for line in file:
+        pdfs.append(line.strip())
+      merger = PdfMerger()
+      for pdf in pdfs:
+       merger.append(pdf)
+      pdfmerged = f"{filename}.pdf"
+      merger.write(pdfmerged)
+      merger.close()
+      with open(pdfmerged,'rb') as f:
+          bot.send_document(user_id,f)
+      shutil.rmtree("./pdfmerge/")
+      cmd(f'''rm "{pdfmerged}" pdfy.txt''')
+
+  elif CallbackQuery.data == "pdftrim":
+      CallbackQuery.edit_message_text("👇")
+      nepho.reply_text(" الآن أرسل نقطة البداية والنهاية بهذه الصورة \n start-end ",reply_markup=ForceReply(True))
+  elif CallbackQuery.data == "musicremove" :
+      cmd("mkdir musicrmv")
+      CallbackQuery.edit_message_text(
+          text= CHOOSE_UR_MUSIC_MODE,
+          reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MUSIC_MODE_BUTTONS)
+      )
+  elif CallbackQuery.data == "musicvid" : 
+      CallbackQuery.edit_message_text("جار الفصل")
+      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./musicrmv/{mp3file}" -y''')
+      cmd(f'''spleeter separate -p spleeter:2stems -o "./musicrmv/" "./musicrmv/{mp3file}"''')
+      cmd(f'''ffmpeg -i "{file_path}" -i "./musicrmv/{nom}/vocals.wav" -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{mp4file}" -y''')
+      with open(mp4file, 'rb') as f:
+          bot.send_video(user_id, f)
+      shutil.rmtree('./musicrmv/')
+      shutil.rmtree('./downloads/')
+      os.remove(mp4file)
+  elif CallbackQuery.data == "musicaud":
+      CallbackQuery.edit_message_text("جار الفصل")
+      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./musicrmv/{mp3file}" -y''')
+      cmd(f'''spleeter separate -p spleeter:2stems -o "./musicrmv/" "./musicrmv/{mp3file}"''')
+      cmd(f'''ffmpeg -i "./musicrmv/{nom}/vocals.wav" -q:a 0 -map a "{mp3file}" -y''')
+      with open(mp3file, 'rb') as f:
+          bot.send_audio(user_id, f)
+      shutil.rmtree('./musicrmv/')
+      shutil.rmtree('./downloads/')
+      os.remove(mp3file)
 
 
 
 
 
 
+
+@bot.on_message(filters.private & filters.reply & filters.regex(ytregex))
+async def refunc(client,message):
+   if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          global ytlink
+          ytlink = message.text 
+          await message.reply(
+             text = CHOOSE_UR_DL_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_DL_MODE_BUTTONS)
+
+        )
 
 @bot.on_message(filters.private & filters.reply & filters.regex('/'))
 async def refunc(client,message):
    if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          nepho.delete()
           endstart = message.text ;await message.delete()
           global strt_point
           global end_point
@@ -406,6 +774,28 @@ async def refunc(client,message):
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILETRIM_MODE_BUTTONS)
 
         )
+@bot.on_message(filters.private & filters.reply & filters.regex("-"))
+async def refunc(client,message):
+   if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          pstartpend = message.text ;await message.delete()
+          global pdfstrt_point
+          global pdfend_point
+          startend = re.split('-',pstartpend)
+          pdfstrt_point=int(startend[0])
+          pdfend_point = int(startend[1])
+          pages = (pdfstrt_point, pdfend_point)
+          reader = PdfReader(file_path)
+          writer = PdfWriter()
+          page_range = range(pages[0], pages[1] + 1)
+          for page_num, page in enumerate(reader.pages, 1):
+           if page_num in page_range:
+            writer.add_page(page)
+           with open(filename, 'wb') as out:
+            writer.write(out)
+          with open(filename,'rb') as f : 
+            await bot.send_document(user_id,f)
+          shutil.rmtree("./downloads/")
+          os.remove(filename)
 @bot.on_message(filters.private & filters.reply )
 async def refunc(client,message):
    if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
