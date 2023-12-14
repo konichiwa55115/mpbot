@@ -15,7 +15,6 @@ CMD ["/bin/chmod", "+x" , "textcleaner"]
 
 # Updating Pip Packages
 RUN pip3 install -U pip
-RUN pip3 install spleeter
 
 # Copying Requirements
 COPY requirements.txt /requirements.txt
@@ -23,6 +22,7 @@ COPY requirements.txt /requirements.txt
 # Installing Requirements
 RUN cd /
 RUN pip3 install -U -r requirements.txt
+RUN pip3 install spleeter
 RUN mkdir /LazyDeveloper
 WORKDIR /LazyDeveloper
 COPY start.sh /start.sh
