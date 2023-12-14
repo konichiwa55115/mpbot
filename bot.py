@@ -32,7 +32,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
-     [InlineKeyboardButton("titled",callback_data="titled")]
+     [InlineKeyboardButton("إزالة موسيقا",callback_data="musicremove"),InlineKeyboardButton("titled",callback_data="titled")]
     
 ]
 CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
@@ -71,6 +71,11 @@ CHOOSE_UR_FILETRIM_MODE_BUTTONS = [
     [InlineKeyboardButton("صوتية",callback_data="audtrim")],
      [InlineKeyboardButton("فيديو ",callback_data="vidtrim")]
      ]
+CHOOSE_UR_MUSIC_MODE = "الآن اختر نوع ملفك " 
+CHOOSE_UR_MUSIC_MODE_BUTTONS = [
+
+ [ InlineKeyboardButton("فيديو",callback_data="musicvid"),InlineKeyboardButton("صوتية",callback_data="musicaud")]
+]
 CHOOSE_UR_FILERENM_MODE = "اختر نوع ملفك "
 CHOOSE_UR_FILERENM_MODE_BUTTONS = [
     [InlineKeyboardButton("صوتية",callback_data="audrenm")],
@@ -711,7 +716,35 @@ def callback_query(CLIENT,CallbackQuery):
   elif CallbackQuery.data == "pdftrim":
       CallbackQuery.edit_message_text("👇")
       nepho.reply_text(" الآن أرسل نقطة البداية والنهاية بهذه الصورة \n start-end ",reply_markup=ForceReply(True))
-      
+  elif CallbackQuery.data == "musicremove" :
+      cmd("mkdir musicrmv")
+      CallbackQuery.edit_message_text(
+          text= CHOOSE_UR_MUSIC_MODE,
+          reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MUSIC_MODE_BUTTONS)
+      )
+  elif CallbackQuery.data == "musicvid" : 
+      CallbackQuery.edit_message_text("جار الفصل")
+      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./musicrmv/{mp3file}" -y''')
+      cmd(f'''spleeter separate -p spleeter:2stems -o "./musicrmv/" "./musicrmv/{mp3file}"''')
+      cmd(f'''ffmpeg -i "{file_path}" -i "./musicrmv/{nom}/vocals.wav" -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{mp4file}" -y''')
+      with open(mp4file, 'rb') as f:
+          bot.send_video(user_id, f)
+      shutil.rmtree('./musicrmv/')
+      shutil.rmtree('./downloads/')
+      os.remove(mp4file)
+  elif CallbackQuery.data == "musicaud":
+      CallbackQuery.edit_message_text("جار الفصل")
+      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "./musicrmv/{mp3file}" -y''')
+      cmd(f'''spleeter separate -p spleeter:2stems -o "./musicrmv/" "./musicrmv/{mp3file}"''')
+      cmd(f'''ffmpeg -i "./musicrmv/{nom}/vocals.wav" -q:a 0 -map a "{mp3file}" -y''')
+      with open(mp3file, 'rb') as f:
+          bot.send_audio(user_id, f)
+      shutil.rmtree('./musicrmv/')
+      shutil.rmtree('./downloads/')
+      os.remove(mp3file)
+
+
+
 
 
 
