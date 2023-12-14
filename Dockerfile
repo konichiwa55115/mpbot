@@ -15,6 +15,7 @@ CMD ["/bin/chmod", "+x" , "textcleaner"]
 
 # Updating Pip Packages
 RUN pip3 install -U pip
+RUN pip3 install spleeter
 
 # Copying Requirements
 COPY requirements.txt /requirements.txt
