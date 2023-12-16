@@ -10,6 +10,8 @@ from yt_dlp import YoutubeDL
 from PyPDF2 import PdfWriter, PdfReader
 from pypdf import PdfMerger
 from PDFNetPython3.PDFNetPython import PDFDoc, Optimizer, SDFDoc, PDFNet
+from pathlib import Path
+from urllib.parse import urlparse, unquote
 ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 bot = Client(
     "audiobot",
@@ -122,6 +124,28 @@ def command2(bot,message):
      message.reply_text("الآن أرسل الرابط \n\n",reply_markup=ForceReply(True))
      global yt_id
      yt_id = message.from_user.id
+@bot.on_message(filters.command('upld') & filters.text & filters.private)
+def command2(bot,message):
+     url = message.text.split("upld ", maxsplit=1)[1]
+     upld_id = message.from_user.id
+     a= urlparse(url).path
+ #filename = filename = url.split("/")[-1] 
+ 
+     url_parsed = urlparse(url)
+     a = unquote(url_parsed.path)
+     filename =a.split("/")[-1] 
+     if filename.endswith('.mp3' or '.m4a' or '.ogg') :
+      cmd(f'''wget -O "{filename}" "{url}"''')
+      with open(filename,'rb') as f : 
+        bot.send_audio(upld_id,f)
+     elif filename.endswith('.mp4' or '.mkv' or '.wmv') :
+      cmd(f'''wget -O "{filename}" "{url}"''')
+      with open(filename,'rb') as f : 
+       bot.send_video(upld_id,f)
+     else :
+      cmd(f'''wget -O "{filename}" "{url}"''')
+      with open(filename,'rb') as f : 
+       bot.send_document(upld_id,f)
 @bot.on_message(filters.command('clear') & filters.private)
 def command2(bot,message):
     cmd('''rm list.txt ''')
