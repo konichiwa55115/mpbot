@@ -124,6 +124,39 @@ def command2(bot,message):
      message.reply_text("الآن أرسل الرابط \n\n",reply_markup=ForceReply(True))
      global yt_id
      yt_id = message.from_user.id
+@bot.on_message(filters.command('yttransy') & filters.text & filters.private)
+def command4(bot,message):
+     url = message.text.split("yttransy ", maxsplit=1)[1]
+     yttransyid = message.from_user.id
+     temptxt = "res.txt"
+     cmd(f'''yt-dlp --flat-playlist -i --print-to-file url yttransy.txt {url}''')
+     cmd(f'''wc -l < yttransy.txt > "{temptxt}"''')
+     with open(temptxt, 'r') as file:
+        temp = file.read().rstrip('\n') 
+     numbofvid = int(temp) + 1
+     os.remove(temptxt)
+     for i in range(1,numbofvid):
+         cmd(f'sed -n {i}p yttransy.txt > res.txt')
+         with open('res.txt', 'r') as file:
+           link = file.read().rstrip('\n')  
+         with YoutubeDL() as ydl: 
+          info_dict = ydl.extract_info(f'{link}', download=False)
+          video_url = info_dict.get("url", None)
+          video_id = info_dict.get("id", None)
+          video_title = info_dict.get('title', None)  
+          mp3file =   f"{video_title}.mp3"
+          txtresfile = f"{video_title}.txt"
+         cmd(f'''yt-dlp -ciw  --extract-audio --audio-format mp3  -o "{video_title}"  "{link}"''')
+         cmd(f'''python3 speech.py RK3ETXWBJQSMO262RXPAIXFSG6NH3QRH "{mp3file}" "{txtresfile}"''')
+         with open(txtresfile, 'rb') as f:
+           bot.send_document(yttransyid, f,caption=video_title)
+         os.remove(txtresfile)
+         os.remove(mp3file)
+         os.remove(temptxt)
+     os.remove("yttransy.txt")
+
+
+
 @bot.on_message(filters.command('upld') & filters.text & filters.private)
 def command2(bot,message):
      url = message.text.split("upld ", maxsplit=1)[1]
