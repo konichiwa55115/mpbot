@@ -1,4 +1,4 @@
-import os ,re
+import os ,re , random
 from pyrogram import Client, filters
 import requests
 import pytesseract
@@ -597,10 +597,12 @@ def callback_query(CLIENT,CallbackQuery):
 
   elif CallbackQuery.data == "audmerge":
     cmd(f'''mkdir mergy''')
-    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mergdir}" -y ''')
+    mp3merge = f"{nom}{random.randint(0,100)}.mp3"
+    cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3merge}" -y ''')
+    print(mp3merge)
     shutil.rmtree('./downloads/') 
     with open('list.txt','a') as f:
-      f.write(f'''file '{mergdir}' \n''')
+      f.write(f'''file '{mp3merge}' \n''')
     CallbackQuery.edit_message_text(
              text = CHOOSE_UR_MERGE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MERGE_BUTTONS))
@@ -611,7 +613,6 @@ def callback_query(CLIENT,CallbackQuery):
     with open(mp3file, 'rb') as f:
          bot.send_audio(aid, f)
     cmd(f'''rm list.txt "{mp3file}" ''')
-    shutil.rmtree('./downloads/')
     shutil.rmtree('./mergy/') 
   elif CallbackQuery.data == "splitty":
     CallbackQuery.edit_message_text("جار التقسيم") 
