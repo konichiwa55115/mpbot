@@ -116,17 +116,24 @@ CHOOSE_UR_RESO_MODE_BUTTONS = [
 @bot.on_message(filters.command('start') & filters.private)
 def command1(bot,message):
     bot.send_message(message.chat.id, " السلام عليكم أنا بوت متعدد الاستعمالات , فقط أرسل الفيديو أو الصوتية هنا\n\n  لبقية البوتات هنا \n\n https://t.me/sunnay6626/2 ",disable_web_page_preview=True)
-@bot.on_message(filters.command('ytdl') & filters.private)
-def command2(bot,message):
-     message.reply_text("الآن أرسل الرابط \n\n",reply_markup=ForceReply(True))
-     global yt_id
-     yt_id = message.from_user.id
+
 @bot.on_message(filters.command('setbucket') & filters.text & filters.private)
 def command9(bot,message):
   global bucketname
   bucketname = message.text.split("setbucket", maxsplit=1)[1]
   bucketname = bucketname.replace(" ", "")
   message.reply_text("تم ضبط المعرف ")
+
+@bot.on_message(filters.command('ytdl') & filters.text & filters.private)
+def command20(bot,message):
+     global yt_id , ytlink
+     ytlink = message.text.split("ytdl", maxsplit=1)[1].replace(" ", "")
+     yt_id = message.from_user.id
+     message.reply(
+             text = CHOOSE_UR_DL_MODE,
+             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_DL_MODE_BUTTONS)
+
+        )
 
 @bot.on_message(filters.command('yttransy') & filters.text & filters.private)
 def command4(bot,message):
@@ -147,7 +154,7 @@ def command4(bot,message):
           info_dict = ydl.extract_info(f'{link}', download=False)
           video_url = info_dict.get("url", None)
           video_id = info_dict.get("id", None)
-          video_title = info_dict.get('title', None)  
+          video_title = info_dict.get('title', None).replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "") 
           mp3file =   f"{video_title}.mp3"
           txtresfile = f"{video_title}.txt"
          cmd(f'''yt-dlp -ciw  --extract-audio --audio-format mp3  -o "{video_title}"  "{link}"''')
@@ -187,34 +194,21 @@ def command2(bot,message):
     
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo )
 def _telegram_file(client, message):
-  global user_id
+  global user_id ,nepho,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result
   user_id = message.from_user.id
-  global nepho
-  nepho = message
-  global file_path
-  file_path = message.download(file_name="./downloads/")
-  global filename
+  nepho = message 
+  x = message.download(file_name="./downloads/")
+  file_path = x.replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
+  cmd(f'''mv "{x}" "{file_path}"''')
   filename = os.path.basename(file_path)
-  global nom
-  global ex
+  print(filename)
   nom,ex = os.path.splitext(filename)
-  global mp4file
   mp4file = f"{nom}.mp4"
-  global mp3file
   mp3file = f"{nom}.mp3"
-  global m4afile
   m4afile = f"{nom}.m4a"
-  global spdrateaud
-  global mergdir
-  global trimdir
   mergdir = f"./mergy/{mp3file}"
-  trimdir = f"./trimmo/{mp3file}"
-  global result
+  trimdir = f"./trimmo/{mp3file}" 
   result = f"{nom}.txt"
-  
-
-
-
   message.reply(
              text = CHOOSE_UR_AUDIO_MODE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AUDIO_MODE_BUTTONS)
@@ -573,7 +567,8 @@ async def callback_query(CLIENT,CallbackQuery):
         info_dict = ydl.extract_info(f'{ytlink}', download=False)
         video_url = info_dict.get("url", None)
         video_id = info_dict.get("id", None)
-        video_title = info_dict.get('title', None)    
+        video_title = info_dict.get('title', None).replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
+          
     cmd(f'''yt-dlp -f 18 -ciw  -o "{video_title}.mp4" "{ytlink}"''')
     with open(f'''{video_title}.mp4''', 'rb') as f:
         await  bot.send_video(yt_id, f,caption=video_title)
@@ -584,7 +579,7 @@ async def callback_query(CLIENT,CallbackQuery):
         info_dict = ydl.extract_info(f'{ytlink}', download=False)
         video_url = info_dict.get("url", None)
         video_id = info_dict.get("id", None)
-        video_title = info_dict.get('title', None)    
+        video_title = info_dict.get('title', None).replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
     cmd(f'''yt-dlp -f 22 -ciw  -o "{video_title}.mp4" "{ytlink}"''')
     with open(f'''{video_title}.mp4''', 'rb') as f:
         await   bot.send_video(yt_id, f,caption=video_title)
@@ -595,7 +590,7 @@ async def callback_query(CLIENT,CallbackQuery):
         info_dict = ydl.extract_info(f'{ytlink}', download=False)
         video_url = info_dict.get("url", None)
         video_id = info_dict.get("id", None)
-        video_title = info_dict.get('title', None)    
+        video_title = info_dict.get('title', None).replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
     cmd(f'''yt-dlp -ciw  --extract-audio --audio-format mp3  -o "{video_title}.mp3"  "{ytlink}"''')
     with open(f'''{video_title}.mp3''', 'rb') as f:
        await   bot.send_audio(yt_id, f,caption=video_title)
@@ -800,16 +795,6 @@ async def callback_query(CLIENT,CallbackQuery):
 
 
 
-@bot.on_message(filters.private & filters.reply & filters.regex(ytregex))
-async def refunc(client,message):
-   if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
-          global ytlink
-          ytlink = message.text 
-          await message.reply(
-             text = CHOOSE_UR_DL_MODE,
-             reply_markup = InlineKeyboardMarkup(CHOOSE_UR_DL_MODE_BUTTONS)
-
-        )
 
 @bot.on_message(filters.private & filters.reply & filters.regex('/'))
 async def refunc(client,message):
