@@ -31,7 +31,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
-     [InlineKeyboardButton("titled",callback_data="titled")]
+     [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("titled",callback_data="titled")]
     
 ]
 CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
@@ -121,6 +121,13 @@ def command2(bot,message):
      message.reply_text("الآن أرسل الرابط \n\n",reply_markup=ForceReply(True))
      global yt_id
      yt_id = message.from_user.id
+@bot.on_message(filters.command('setbucket') & filters.text & filters.private)
+def command9(bot,message):
+  global bucketname
+  bucketname = message.text.split("setbucket", maxsplit=1)[1]
+  bucketname = bucketname.replace(" ", "")
+  message.reply_text("تم ضبط المعرف ")
+
 @bot.on_message(filters.command('yttransy') & filters.text & filters.private)
 def command4(bot,message):
      url = message.text.split("yttransy ", maxsplit=1)[1]
@@ -779,8 +786,15 @@ async def callback_query(CLIENT,CallbackQuery):
   elif CallbackQuery.data == "pdftrim":
       await CallbackQuery.edit_message_text("👇")
       await nepho.reply_text(" الآن أرسل نقطة البداية والنهاية بهذه الصورة \n start-end ",reply_markup=ForceReply(True))
- 
-      
+  elif CallbackQuery.data == "upldarch":
+      if user_id==6234365091 :
+         await CallbackQuery.edit_message_text("جار الرفع")
+         cmd(f'''rclone copy '{file_path}' 'myarchive':"{bucketname}"''')
+         os.remove(file_path)
+         await CallbackQuery.edit_message_text("تم الرفع")
+      else :
+         await CallbackQuery.edit_message_text("هذه الميزة متوفرة لمالك البوت فقط")
+         
       
 
 
