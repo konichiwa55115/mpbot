@@ -14,13 +14,14 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6466415254:AAE_m_mYGHFuu3MT4T0qzqVCm0WvR4biYvM"
+    bot_token="6812722455:AAEjCb1ZwgBa8DZ4_wVNNjDZbe6EtQZOUxo"
 )
 #6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
 #5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
 #6306753444:AAFnoiusUbny-fpy4xxZWYqGNh_c7yOioW8
 #6709809460:AAGWWXJBNMF_4ohBNRS22Tg0Q3-vkm376Eo
 #6466415254:AAE_m_mYGHFuu3MT4T0qzqVCm0WvR4biYvM
+#6812722455:AAEjCb1ZwgBa8DZ4_wVNNjDZbe6EtQZOUxo
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
@@ -34,7 +35,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
-     [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("titled",callback_data="titled")]
+     [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines"),InlineKeyboardButton("titled",callback_data="titled")]
     
 ]
 CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
@@ -792,6 +793,18 @@ async def callback_query(CLIENT,CallbackQuery):
          await CallbackQuery.edit_message_text("تم الرفع")
       else :
          await CallbackQuery.edit_message_text("هذه الميزة متوفرة لمالك البوت فقط")
+  elif CallbackQuery.data == "rmvlines":
+      await CallbackQuery.edit_message_text("جار العمل")
+      with open(file_path, 'r') as file:
+           text = file.read().replace("\n", " ")
+      with open(filename,'a') as f:
+       f.write(text)
+      with open(filename,'rb') as f:
+        await bot.send_document(user_id,f) 
+      os.remove(file_path)
+      os.remove(filename)
+      
+     
          
       
 
