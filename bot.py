@@ -14,12 +14,13 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6709809460:AAGWWXJBNMF_4ohBNRS22Tg0Q3-vkm376Eo"
+    bot_token="6466415254:AAE_m_mYGHFuu3MT4T0qzqVCm0WvR4biYvM"
 )
 #6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
 #5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
 #6306753444:AAFnoiusUbny-fpy4xxZWYqGNh_c7yOioW8
 #6709809460:AAGWWXJBNMF_4ohBNRS22Tg0Q3-vkm376Eo
+#6466415254:AAE_m_mYGHFuu3MT4T0qzqVCm0WvR4biYvM
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
