@@ -39,7 +39,7 @@ for chunk in chunks:
         output_text += response.text.strip()
         output_text = output_text.replace("\u064E", "").replace("\u064F", "").replace("\u0650", "").replace("\u0651", "").replace("\u0652", "").replace("?", "؟").replace(".", "")
         filename = os.path.splitext(file.name)[0]
-        doc = Document()
-        doc.add_paragraph(output_text)
-        doc.save(f"{filename}.docx")
+        outputtxt = f'{filename}.txt'
+        with open(outputtxt,'a') as f:
+          f.write(output_text)
 
