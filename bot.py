@@ -14,7 +14,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6812722455:AAEjCb1ZwgBa8DZ4_wVNNjDZbe6EtQZOUxo"
+    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
 #6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
 #5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
@@ -387,6 +387,7 @@ async def callback_query(CLIENT,CallbackQuery):
 
   elif CallbackQuery.data == "trim" :
    await nepho.reply_text("الآن أرسل نقطة البداية والنهاية بهذه الصورة \n\n hh:mm:ss/hh:mm:ss",reply_markup=ForceReply(True))
+   await nepho.delete()
    await CallbackQuery.edit_message_text("👇") 
   elif CallbackQuery.data == "mod1":
       amplemode = 5
@@ -464,6 +465,7 @@ async def callback_query(CLIENT,CallbackQuery):
     os.remove(mp4file) 
   elif CallbackQuery.data == "renm":
     await nepho.reply_text("الآن أدخل الاسم الجديد ",reply_markup=ForceReply(True))
+    await nepho.delete()
     await CallbackQuery.edit_message_text("👇") 
   elif CallbackQuery.data == "audrenm":
     await CallbackQuery.edit_message_text("👇")
@@ -785,6 +787,7 @@ async def callback_query(CLIENT,CallbackQuery):
   elif CallbackQuery.data == "pdftrim":
       await CallbackQuery.edit_message_text("👇")
       await nepho.reply_text(" الآن أرسل نقطة البداية والنهاية بهذه الصورة \n start-end ",reply_markup=ForceReply(True))
+      await nepho.delete()
   elif CallbackQuery.data == "upldarch":
       if user_id==6234365091 :
          await CallbackQuery.edit_message_text("جار الرفع")
