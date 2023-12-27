@@ -14,7 +14,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6812722455:AAEjCb1ZwgBa8DZ4_wVNNjDZbe6EtQZOUxo"
+    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
 #6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
 #5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
@@ -213,7 +213,7 @@ def _telegram_file(client, message):
   mergdir = f"./mergy/{mp3file}"
   trimdir = f"./trimmo/{mp3file}" 
   result = f"{nom}.txt"
-  message.reply(
+  nepho.reply(
              text = CHOOSE_UR_AUDIO_MODE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AUDIO_MODE_BUTTONS)
 
@@ -464,9 +464,8 @@ async def callback_query(CLIENT,CallbackQuery):
     os.remove(file_path) 
     os.remove(mp4file) 
   elif CallbackQuery.data == "renm":
-    await nepho.reply_text("الآن أدخل الاسم الجديد ",reply_markup=ForceReply(True))
-    await nepho.delete()
     await CallbackQuery.edit_message_text("👇") 
+    await nepho.reply_text("الآن أدخل الاسم الجديد ",reply_markup=ForceReply(True))
   elif CallbackQuery.data == "audrenm":
     await CallbackQuery.edit_message_text("👇")
     aid = user_id
@@ -819,7 +818,10 @@ async def callback_query(CLIENT,CallbackQuery):
 async def refunc(client,message):
    if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
           nepho.delete()
-          endstart = message.text ;await message.delete()
+          endstart = message.text 
+          msgid = message.reply_to_message_id
+          await bot.delete_messages(user_id,msgid)
+          await message.delete()
           global strt_point
           global end_point
           strt, end = os.path.split(endstart);strt_point=strt 
@@ -832,7 +834,10 @@ async def refunc(client,message):
 @bot.on_message(filters.private & filters.reply & filters.regex("-"))
 async def refunc(client,message):
    if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
-          pstartpend = message.text ;await message.delete()
+          pstartpend = message.text 
+          msgid = message.reply_to_message_id
+          await bot.delete_messages(user_id,msgid)
+          await message.delete()
           global pdfstrt_point
           global pdfend_point
           startend = re.split('-',pstartpend)
@@ -854,7 +859,10 @@ async def refunc(client,message):
 @bot.on_message(filters.private & filters.reply )
 async def refunc(client,message):
    if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
-          newname = message.text ;await message.delete()
+          newname = message.text 
+          msgid = message.reply_to_message_id
+          await bot.delete_messages(user_id,msgid)
+          await message.delete()
           global newfile
           newfile = f"{newname}{ex}"
           cmd(f'''mv "{file_path}" "{newfile}"''')
