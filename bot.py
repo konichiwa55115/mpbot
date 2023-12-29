@@ -35,7 +35,8 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
-     [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines"),InlineKeyboardButton("titled",callback_data="titled")]
+     [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines")],
+[InlineKeyboardButton("titled",callback_data="titled"),InlineKeyboardButton("تغيير أبعاد الفيديو ",callback_data="vidasp") ]
     
 ]
 CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
@@ -54,6 +55,12 @@ CHOOSE_UR_AMPLE_MODE_BUTTONS = [
      [InlineKeyboardButton("25db",callback_data="mod5")]
 ]
 
+
+CHOOSE_UR_VIDRES_MODE = "الآن اختر أبعادالناتج"
+CHOOSE_UR_VIDRES_MODE_BUTTONS = [
+    [InlineKeyboardButton("9:16",callback_data="vidresnow11")],
+    [InlineKeyboardButton("16:9",callback_data="vidresnow169")]
+]
 CHOOSE_UR_COMP_MODE = " اختر نمط الضغط \n كلما قل الرقم زاد الضغط و قل حجم الصوتية "
 CHOOSE_UR_COMP_MODE_BUTTONS = [
     [InlineKeyboardButton("10k",callback_data="compmod1")],
@@ -618,8 +625,7 @@ async def callback_query(CLIENT,CallbackQuery):
     cmd(f'''mkdir mergy''')
     mp3merge = f"{nom}{random.randint(0,100)}.mp3"
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3merge}" -y ''')
-    print(mp3merge)
-    shutil.rmtree('./downloads/') 
+    os.remove(file_path)
     with open('list.txt','a') as f:
       f.write(f'''file '{mp3merge}' \n''')
     await CallbackQuery.edit_message_text(
@@ -807,7 +813,19 @@ async def callback_query(CLIENT,CallbackQuery):
         await bot.send_document(user_id,f) 
       os.remove(file_path)
       os.remove(filename)
-      
+  elif CallbackQuery.data == "vidasp":
+    await CallbackQuery.edit_message_text(text = CHOOSE_UR_VIDRES_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_VIDRES_MODE_BUTTONS))
+  elif CallbackQuery.data == "vidresnow11":
+    await  CallbackQuery.edit_message_text("جار التحويل")
+    cmd(f'''ffmpeg -i "{file_path}" -vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:-1:-1:color=black" "{mp4file}"''')
+    await bot.send_document(user_id,mp4file) 
+  elif CallbackQuery.data == "vidresnow169":
+    await  CallbackQuery.edit_message_text("جار التحويل")
+    cmd(f'''ffmpeg -i "{file_path}" -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:-1:-1:color=black" "{mp4file}"''')
+    await bot.send_video(user_id,mp4file) 
+
+     
+     
      
          
       
