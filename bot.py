@@ -561,7 +561,7 @@ async def callback_query(CLIENT,CallbackQuery):
   elif CallbackQuery.data == "speedfileaud":
     await CallbackQuery.edit_message_text("جار التسريع")
     aid = user_id
-    cmd(f'''ffmpeg -i {file_path} -filter:a "atempo={spdrateaud}" -vn {mp3file} -y ''')
+    cmd(f'''ffmpeg -i "{file_path}" -filter:a "atempo={spdrateaud}" -vn "{mp3file}" -y ''')
     with open(mp3file, 'rb') as f:
           await   bot.send_audio(aid, f) 
     os.remove(file_path) 
@@ -605,7 +605,7 @@ async def callback_query(CLIENT,CallbackQuery):
   elif CallbackQuery.data == "speedfilevid":
     await CallbackQuery.edit_message_text("جار التسريع")
     aid = user_id
-    cmd(f'''ffmpeg -i {file_path} -filter_complex "[0:v]setpts={spdratevid}*PTS[v];[0:a]atempo={spdrateaud}[a]" -map "[v]" -map "[a]" {mp4file} -y ''')
+    cmd(f'''ffmpeg -i "{file_path}" -filter_complex "[0:v]setpts={spdratevid}*PTS[v];[0:a]atempo={spdrateaud}[a]" -map "[v]" -map "[a]" "{mp4file}" -y ''')
     with open(mp4file, 'rb') as f:
          await    bot.send_video(aid, f)
     
