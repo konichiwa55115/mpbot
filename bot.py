@@ -14,7 +14,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="6812722455:AAEjCb1ZwgBa8DZ4_wVNNjDZbe6EtQZOUxo"
+    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
 #6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
 #5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
