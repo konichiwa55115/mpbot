@@ -199,7 +199,8 @@ def command2(bot,message):
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo )
 def _telegram_file(client, message):
   global user_id ,nepho,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result
-  user_id = message.from_user.id
+  allid = message.from_user.id
+  user_id = allid
   nepho = message 
   x = message.download(file_name="./downloads/")
   file_path = x.replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
