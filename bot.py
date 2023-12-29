@@ -14,7 +14,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E"
+    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI"
 )
 #6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
 #5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
@@ -204,9 +204,11 @@ def _telegram_file(client, message):
   nepho = message 
   x = message.download(file_name="./downloads/")
   file_path = x.replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
-  cmd(f'''mv "{x}" "{file_path}"''')
+  if file_path == x :
+     pass
+  else :
+     os.rename(x,file_path)
   filename = os.path.basename(file_path)
-  print(filename)
   nom,ex = os.path.splitext(filename)
   mp4file = f"{nom}.mp4"
   mp3file = f"{nom}.mp3"
@@ -246,7 +248,7 @@ async def callback_query(CLIENT,CallbackQuery):
     os.remove(file_path) 
     os.remove(mp3file) 
   elif  CallbackQuery.data == "titled":
-      cmd(f'''mv "{file_path}" "{filename}"''')
+      os.rename(file_path,filename)
       with open(filename, 'rb') as f:
         await bot.send_document(user_id, f)
       await CallbackQuery.edit_message_text("تم الإرسال  ") 
@@ -264,10 +266,10 @@ async def callback_query(CLIENT,CallbackQuery):
 
 
   elif  CallbackQuery.data == "thisisvid":
-     cmd(f'''mv "{file_path}" "./downloads/subsvid.mp4" ''')
+     os.rename(file_path,"./downloads/subsvid.mp4")
      await CallbackQuery.edit_message_text("الآن أرسل الصوت الجديد ثم اختر إبدال الآن") 
   elif  CallbackQuery.data == "thisisimage":
-     cmd(f'''mv "{file_path}" "./downloads/imagetovid.jpg" ''')
+     os.rename(file_path,"./downloads/imagetovid.jpg")
      await CallbackQuery.edit_message_text("الآن أرسل الصوت  ثم اختر منتجة الآن") 
 
   elif  CallbackQuery.data == "subs":
@@ -472,13 +474,13 @@ async def callback_query(CLIENT,CallbackQuery):
     aid = user_id
     with open(newfile, 'rb') as f:
         await  bot.send_audio(aid, f)
-    cmd(f'''unlink "{newfile}" ''')
+    os.remove(newfile)
   elif CallbackQuery.data == "vidrenm":
     await CallbackQuery.edit_message_text("👇")
     aid = user_id
     with open(newfile, 'rb') as f:
            await  bot.send_video(aid, f)
-    cmd(f'''unlink "{newfile}" ''')
+    os.remove(newfile)
   elif CallbackQuery.data == "docrenm":
     await CallbackQuery.edit_message_text("👇")
     aid = user_id
@@ -501,7 +503,7 @@ async def callback_query(CLIENT,CallbackQuery):
     finalmp3 = mp3file
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')  
     cmd(f'''python3 speech.py RK3ETXWBJQSMO262RXPAIXFSG6NH3QRH "{finalmp3}" "transcription.txt" ''')
-    cmd(f'''mv transcription.txt "{finalnom}"''')
+    os.rename("transcription.txt",finalnom)
     with open(finalnom, 'rb') as f:
         await bot.send_document(finalid, f)
     await CallbackQuery.edit_message_text("تم التفريغ ✅  ")   
@@ -704,7 +706,7 @@ async def callback_query(CLIENT,CallbackQuery):
     aid = user_id
     await CallbackQuery.edit_message_text("جار التفريغ")
     cmd('mkdir temp')
-    pdf = pdfium.PdfDocument(file_path)
+    pdf = pdfium.PdfDocument(f'{file_path}')
     n_pages = len(pdf)
     for page_number in range(n_pages):
      page = pdf.get_page(page_number)
@@ -718,7 +720,6 @@ async def callback_query(CLIENT,CallbackQuery):
         optimise_mode=pdfium.OptimiseMode.NONE,
     )
      pil_image.save(f"./temp/image_{page_number+1}.png")
-    shutil.rmtree('./downloads/') 
     os.remove(file_path) 
     count = 0
     for path in os.listdir("./temp/"):
@@ -740,11 +741,11 @@ async def callback_query(CLIENT,CallbackQuery):
      with open("final.txt",'a') as f:
       f.write(f'''{textspaced} \n''')
      coca +=1
-    cmd(f'''mv final.txt "{result}"''')
+    os.rename("final.txt",result)
     with open(result, 'rb') as f:
         await bot.send_document(aid, f)
     shutil.rmtree('./temp/') 
-    cmd(f'''rm "{result}"''')
+    os.remove(result)
   elif CallbackQuery.data == "pdfcompress":
       await CallbackQuery.edit_message_text("جار الضغط")
       PDFNet.Initialize("demo:1676040759361:7d2a298a03000000006027df7c81c9e05abce088e7286e8312e5e06886"); doc = PDFDoc(f"{file_path}")
@@ -866,7 +867,7 @@ async def refunc(client,message):
           await message.delete()
           global newfile
           newfile = f"{newname}{ex}"
-          cmd(f'''mv "{file_path}" "{newfile}"''')
+          os.rename(file_path,newfile)
           await message.reply(
              text = CHOOSE_UR_FILERENM_MODE,
              reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILERENM_MODE_BUTTONS)
