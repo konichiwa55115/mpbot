@@ -275,7 +275,7 @@ def command4(bot,message):
           mp32file =   f"{video_title}.mp3"
           txtresfile = f"{video_title}.txt"
           mp42file =   f"{video_title}.mp4"
-         cmd(f'''yt-dlp -ciw  --extract-audio --audio-format m4a  -o "{mp32file}"  "{link}"''')
+         cmd(f'''yt-dlp -ciw  --extract-audio --audio-format mp3  -o "{video_title}"  "{link}"''')
          bot.send_audio(ytplstid, mp32file,caption=video_title)
          os.remove(mp32file)
          os.remove(temptxt)
