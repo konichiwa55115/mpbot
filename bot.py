@@ -170,14 +170,14 @@ def command20(bot,message):
        cmd(f'''yt-dlp -ciw  --extract-audio --audio-format mp3  -o "{audio}"  "{ytlink}"''')
        bot.send_audio(yt_id, audio,caption=video_title)
        os.remove(audio)
-
-        
-     
-        
-     
-     message.reply(text = CHOOSE_UR_DL_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_DL_MODE_BUTTONS))
 @bot.on_message(filters.command('yttransy') & filters.text & filters.private)
 def command4(bot,message):
+     try: 
+      with open('yttransy.txt', 'r') as fh:
+         message.reply_text("هناك تحميل يتم الآن ")
+         return
+     except FileNotFoundError: 
+      pass  
      url = message.text.split("yttransy ", maxsplit=1)[1]
      yttransyid = message.from_user.id
      cmd(f'''yt-dlp --flat-playlist -i --print-to-file url yttransy.txt {url}''')
@@ -207,7 +207,15 @@ def command4(bot,message):
      os.remove("yttransy.txt")
 @bot.on_message(filters.command('ytplst') & filters.text & filters.private)
 def command4(bot,message):
-     url = message.text.split("ytplst ", maxsplit=1)[1]
+     try: 
+      with open('ytplst.txt', 'r') as fh:
+         message.reply_text("هناك تحميل يتم الآن ")
+         return
+     except FileNotFoundError: 
+      pass  
+     x = message.text.split(" ")[1]
+     print(x)
+     url = x.split(" ")[0]
      dlmode = message.text.split(" ")[-1] 
      global ytplstid
      ytplstid = message.from_user.id
