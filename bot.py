@@ -243,7 +243,6 @@ def command4(bot,message):
          bot.send_video(ytplstid, mp42file,caption=video_title)
          os.remove(mp42file)
          os.remove(temptxt)
-       os.remove("ytplst.txt")
      elif dlmode == "vid720":
       for i in range(1,plstnumbofvid):
          cmd(f'sed -n {i}p ytplst.txt > "{temptxt}"')
@@ -261,7 +260,6 @@ def command4(bot,message):
          bot.send_video(ytplstid, mp42file,caption=video_title)
          os.remove(mp42file)
          os.remove(temptxt)
-      os.remove("ytplst.txt")
      else : 
       for i in range(1,plstnumbofvid):
          cmd(f'sed -n {i}p ytplst.txt > "{temptxt}"')
@@ -279,7 +277,7 @@ def command4(bot,message):
          bot.send_audio(ytplstid, mp32file,caption=video_title)
          os.remove(mp32file)
          os.remove(temptxt)
-      os.remove("ytplst.txt")
+     os.remove("ytplst.txt")
 
 
 
@@ -565,7 +563,7 @@ async def callback_query(CLIENT,CallbackQuery):
     os.remove(mp4file) 
 
   elif CallbackQuery.data == "audmerge":
-    CallbackQuery.edit_message_text("جار الإضافة ")
+    await CallbackQuery.edit_message_text("جار الإضافة ")
     cmd(f'''mkdir mergy''')
     mp3merge = f"{nom}{random.randint(0,100)}.mp3"
     cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3merge}" -y ''')
