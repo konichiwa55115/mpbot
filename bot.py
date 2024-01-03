@@ -309,24 +309,20 @@ def command2(bot,message):
     
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo )
 def _telegram_file(client, message):
-  global nepho
+  global user_id ,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result,amplemode,nepho
   nepho = message
+  user_id = nepho.from_user.id
+  x =  nepho.download(file_name="./downloads/")
+  file_path = x.replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
+  if file_path == x :
+     pass
+  else :
+     os.rename(x,file_path)
   nepho.reply(text = CHOOSE_UR_AUDIO_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AUDIO_MODE_BUTTONS))
       
 @bot.on_callback_query()
 async def callback_query(CLIENT,CallbackQuery): 
-  await CallbackQuery.edit_message_text("جار المعالجة  ")
-  global user_id ,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result,amplemode
-  if os.path.isfile(file_path) : 
-      pass
-  else : 
-        x = await nepho.download(file_name="./downloads/")
-        file_path = x.replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
-        if file_path == x :
-         pass
-        else :
-          await os.rename(x,file_path)
-  user_id = nepho.from_user.id
+  await CallbackQuery.edit_message_text("جار العمل")
   filename = os.path.basename(file_path)
   nom,ex = os.path.splitext(filename)
   mp4file = f"{nom}.mp4"
