@@ -316,6 +316,7 @@ def _telegram_file(client, message):
 @bot.on_callback_query()
 async def callback_query(CLIENT,CallbackQuery):  
   global user_id ,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result,amplemode
+  await CallbackQuery.edit_message_text("جار الرفع إلى السرفر ")
   user_id = nepho.from_user.id
   x = await nepho.download(file_name="./downloads/")
   file_path = x.replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
