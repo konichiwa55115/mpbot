@@ -65,7 +65,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
     [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines")],
-    [InlineKeyboardButton("titled",callback_data="titled")]
+    [InlineKeyboardButton("titled",callback_data="titled"),InlineKeyboardButton("ترقيع الصور",callback_data="imagestitch")]
 ]
 
 PRESS_MERGE_IMAGE = "الآن أرسل الصورة الأخرى و اختر دمج الآن "
