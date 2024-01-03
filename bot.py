@@ -11,6 +11,7 @@ from pypdf import PdfMerger
 from PDFNetPython3.PDFNetPython import PDFDoc, Optimizer, SDFDoc, PDFNet
 from pathlib import Path
 from urllib.parse import urlparse, unquote
+from PIL import Image
 ytregex = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 bot = Client(
     "audiobot",
@@ -24,6 +25,31 @@ bot = Client(
 #6709809460:AAGWWXJBNMF_4ohBNRS22Tg0Q3-vkm376Eo
 #6466415254:AAE_m_mYGHFuu3MT4T0qzqVCm0WvR4biYvM
 #6812722455:AAEjCb1ZwgBa8DZ4_wVNNjDZbe6EtQZOUxo
+imagedic = {}
+def merge_images1(file1, file2):
+    
+    image1 = Image.open(file1)
+    image2 = Image.open(file2)
+    (width1, height1) = image1.size
+    (width2, height2) = image2.size
+    result_width = max(width1 , width2)
+    result_height = height1 + height2
+    result = Image.new('RGB', (result_width, result_height))
+    result.paste(im=image1, box=(0, 0))
+    result.paste(im=image2, box=(0, height1))
+    return result
+def merge_images2(file1, file2):
+    image1 = Image.open(file1)
+    image2 = Image.open(file2)
+    (width1, height1) = image1.size
+    (width2, height2) = image2.size
+    result_width = width1 + width2
+    result_height = max(height1, height2)
+    result = Image.new('RGB', (result_width, result_height))
+    result.paste(im=image1, box=(0, 0))
+    result.paste(im=image2, box=(width1, 0))
+    return result
+
 
 CHOOSE_UR_AUDIO_MODE = "اختر العملية  التي تريد "
 CHOOSE_UR_AUDIO_MODE_BUTTONS = [
@@ -41,6 +67,17 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines")],
     [InlineKeyboardButton("titled",callback_data="titled")]
 ]
+
+PRESS_MERGE_IMAGE = "الآن أرسل الصورة الأخرى و اختر دمج الآن "
+PRESS_MERGE_IMAGE_BUTTONS = [
+    [InlineKeyboardButton("دمج الآن ",callback_data="imagemergenow")]
+     ]
+PRESS_MERGEMODE_IMAGE = "اختر نمط الدمج "
+PRESS_MERGEMODE_IMAGE_BUTTONS = [
+    [InlineKeyboardButton("متجاورتين بالجانب",callback_data="sidebyside")],
+    [InlineKeyboardButton("الأولى فوق والثانية تحت ",callback_data="updown")]
+
+     ]
 CHOOSE_UR_DL_MODE = "اختر نمط التنزيل "
 CHOOSE_UR_DL_MODE_BUTTONS = [
     [InlineKeyboardButton("VIDEO 360P",callback_data="vid360")],
@@ -752,7 +789,26 @@ async def callback_query(CLIENT,CallbackQuery):
    await bot.send_audio(user_id,mp3file)
    os.remove(file_path)
    os.remove(mp3file)
-
+  elif CallbackQuery.data == "imagestitch" :
+     imagedic[file_path] = filename
+     await CallbackQuery.edit_message_text(text = PRESS_MERGE_IMAGE,reply_markup = InlineKeyboardMarkup(PRESS_MERGE_IMAGE_BUTTONS))
+  elif CallbackQuery.data == "imagemergenow" :
+          await CallbackQuery.edit_message_text(text = PRESS_MERGEMODE_IMAGE,reply_markup = InlineKeyboardMarkup(PRESS_MERGEMODE_IMAGE_BUTTONS))
+  elif CallbackQuery.data == "sidebyside" :
+     output_img = f"{nom}.jpg"
+     image1 = list(imagedic.keys())[0]
+     image2 = list(imagedic.keys())[1]
+     merged = merge_images2( image1, image2 )
+     merged.save(output_img) 
+     await bot.send_photo(user_id,output_img)
+  elif CallbackQuery.data == "updown" :
+     output_img = f"{nom}.jpg"
+     image1 = list(imagedic.keys())[0]
+     image2 = list(imagedic.keys())[1]
+     merged = merge_images1( image1, image2 )
+     merged.save(output_img) 
+     await bot.send_photo(user_id,output_img)
+     
   
 
      
