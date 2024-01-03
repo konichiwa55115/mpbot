@@ -309,7 +309,7 @@ def command2(bot,message):
     
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo )
 def _telegram_file(client, message):
-  global user_id ,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result,amplemode,nepho
+  global user_id ,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result,nepho
   nepho = message
   user_id = nepho.from_user.id
   x =  nepho.download(file_name="./downloads/")
@@ -330,6 +330,7 @@ def _telegram_file(client, message):
       
 @bot.on_callback_query()
 async def callback_query(CLIENT,CallbackQuery): 
+  global amplemode
   await CallbackQuery.edit_message_text("جار العمل")
   if CallbackQuery.data == "amplifyaud":
      await CallbackQuery.edit_message_text(text = CHOOSE_UR_AMPLE_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AMPLE_MODE_BUTTONS))
