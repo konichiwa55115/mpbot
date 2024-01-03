@@ -314,16 +314,19 @@ def _telegram_file(client, message):
   nepho.reply(text = CHOOSE_UR_AUDIO_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AUDIO_MODE_BUTTONS))
       
 @bot.on_callback_query()
-async def callback_query(CLIENT,CallbackQuery):  
+async def callback_query(CLIENT,CallbackQuery): 
+  await CallbackQuery.edit_message_text("جار المعالجة  ")
   global user_id ,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result,amplemode
-  await CallbackQuery.edit_message_text("جار الرفع إلى السرفر ")
+  if os.path.isfile(file_path) : 
+      pass
+  else : 
+        x = await nepho.download(file_name="./downloads/")
+        file_path = x.replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
+        if file_path == x :
+         pass
+        else :
+          await os.rename(x,file_path)
   user_id = nepho.from_user.id
-  x = await nepho.download(file_name="./downloads/")
-  file_path = x.replace('＂', '').replace('"', '').replace("'", "").replace("｜", "").replace("|", "")
-  if file_path == x :
-     pass
-  else :
-     await os.rename(x,file_path)
   filename = os.path.basename(file_path)
   nom,ex = os.path.splitext(filename)
   mp4file = f"{nom}.mp4"
