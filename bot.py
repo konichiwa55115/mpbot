@@ -575,7 +575,7 @@ async def callback_query(CLIENT,CallbackQuery):
   elif CallbackQuery.data == "mergenow":
     await CallbackQuery.edit_message_text("جار الدمج") 
     cmd(f'''ffmpeg -f concat -safe 0 -i list.txt "{mp3file}" -y ''')
-    bot.send_audio(user_id, mp3file)
+    await bot.send_audio(user_id, mp3file)
     cmd(f'''rm list.txt "{mp3file}" ''')
     shutil.rmtree('./mergy/') 
   elif CallbackQuery.data == "splitty":
