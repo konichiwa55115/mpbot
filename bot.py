@@ -319,10 +319,6 @@ def _telegram_file(client, message):
   else :
      os.rename(x,file_path)
   nepho.reply(text = CHOOSE_UR_AUDIO_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AUDIO_MODE_BUTTONS))
-      
-@bot.on_callback_query()
-async def callback_query(CLIENT,CallbackQuery): 
-  await CallbackQuery.edit_message_text("جار العمل")
   filename = os.path.basename(file_path)
   nom,ex = os.path.splitext(filename)
   mp4file = f"{nom}.mp4"
@@ -331,6 +327,10 @@ async def callback_query(CLIENT,CallbackQuery):
   mergdir = f"./mergy/{mp3file}"
   trimdir = f"./trimmo/{mp3file}" 
   result = f"{nom}.txt"
+      
+@bot.on_callback_query()
+async def callback_query(CLIENT,CallbackQuery): 
+  await CallbackQuery.edit_message_text("جار العمل")
   if CallbackQuery.data == "amplifyaud":
      await CallbackQuery.edit_message_text(text = CHOOSE_UR_AMPLE_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_AMPLE_MODE_BUTTONS))
   elif CallbackQuery.data == "comp":
