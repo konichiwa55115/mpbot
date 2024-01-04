@@ -65,7 +65,8 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
     [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines")],
-    [InlineKeyboardButton("titled",callback_data="titled"),InlineKeyboardButton("ترقيع الصور",callback_data="imagestitch")]
+    [InlineKeyboardButton("titled",callback_data="titled"),InlineKeyboardButton("ترقيع الصور",callback_data="imagestitch")],
+    [InlineKeyboardButton("صورة إلى gif",callback_data="imagetogif")]
 ]
 
 PRESS_MERGE_IMAGE = "الآن أرسل الصورة الأخرى و اختر دمج الآن "
@@ -810,18 +811,31 @@ async def callback_query(CLIENT,CallbackQuery):
      merged.save(output_img) 
      await bot.send_photo(user_id,output_img)
      imagedic.clear()
+  elif CallbackQuery.data == "imagetogif" :
+      await nepho.reply_text("الآن أرسل مدة الفيديو بالثانية بهذه الصورة \n t=المدة",reply_markup=ForceReply(True))
+
+     
      
   
 
      
      
      
-         
+@bot.on_message(filters.private & filters.reply & filters.regex("="))
+async def refunc(client,message):
+   if (message.reply_to_message.reply_markup) and isinstance(message.reply_to_message.reply_markup, ForceReply)  :
+          timeofvidstoned = message.text 
+          msgid = message.reply_to_message_id
+          await bot.delete_messages(user_id,msgid)
+          await message.delete()
+          startend = re.split('=',timeofvidstoned)
+          timeofvid  = int(startend[1])  
+          cmd(f'''ffmpeg -loop 1 -i {file_path} -c:v libx264 -t {timeofvid} -pix_fmt yuv420p -vf scale=1920:1080 "{mp4file}"''') 
+          await bot.send_video(user_id,mp4file) 
+          os.remove(mp4file)
+          os.remove(file_path)
+
       
-
-
-
-
 
 @bot.on_message(filters.private & filters.reply & filters.regex('/'))
 async def refunc(client,message):
