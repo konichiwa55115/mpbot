@@ -801,6 +801,7 @@ async def callback_query(CLIENT,CallbackQuery):
      merged = merge_images2( image1, image2 )
      merged.save(output_img) 
      await bot.send_photo(user_id,output_img)
+     imagedic.clear()
   elif CallbackQuery.data == "updown" :
      output_img = f"{nom}.jpg"
      image1 = list(imagedic.keys())[0]
@@ -808,6 +809,7 @@ async def callback_query(CLIENT,CallbackQuery):
      merged = merge_images1( image1, image2 )
      merged.save(output_img) 
      await bot.send_photo(user_id,output_img)
+     imagedic.clear()
      
   
 
