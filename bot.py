@@ -345,7 +345,7 @@ def command2(bot,message):
 def command2(bot,message):
     cmd('''rm list.txt ''')
     
-@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo )
+@bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo | filters.animation )
 def _telegram_file(client, message):
   global user_id ,file_path,filename,nom,ex,mp4file,mp3file,m4afile,spdrateaud,mergdir,trimdir,result,nepho
   nepho = message
@@ -830,9 +830,11 @@ async def refunc(client,message):
           await message.delete()
           startend = re.split('=',timeofvidstoned)
           timeofvid  = int(startend[1])  
-          cmd(f'''ffmpeg -loop 1 -i {file_path} -c:v libx264 -t {timeofvid} -pix_fmt yuv420p -vf scale=1920:1080 "{mp4file}"''') 
+          cmd(f'''ffmpeg -loop 1 -i "{file_path}" -c:v libx264 -t {timeofvid} -pix_fmt yuv420p -vf scale=1920:1080 "mod{mp4file}"''') 
+          cmd(f'''ffmpeg -i "mod{mp4file}" -f lavfi -i anullsrc -map 0:v -map 1:a -c:v copy -shortest "{mp4file}"''')
           await bot.send_video(user_id,mp4file) 
           os.remove(mp4file)
+          os.remove(f"mod{mp4file}")
           os.remove(file_path)
 
       
