@@ -797,8 +797,8 @@ async def callback_query(CLIENT,CallbackQuery):
           await CallbackQuery.edit_message_text(text = PRESS_MERGEMODE_IMAGE,reply_markup = InlineKeyboardMarkup(PRESS_MERGEMODE_IMAGE_BUTTONS))
   elif CallbackQuery.data == "sidebyside" :
      output_img = f"{nom}.jpg"
-     image1 = imagedic[0]
-     image2 = imagedic[1]
+     image1 = str(imagedic[0])
+     image2 = str(imagedic[1])
      merged = merge_images2( image1, image2 )
      merged.save(output_img) 
      await bot.send_photo(user_id,output_img)
