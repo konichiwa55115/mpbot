@@ -1,4 +1,5 @@
-global temptxt
+global temptxt,imagedic 
+imagedic = []
 temptxt = "res.txt"
 from pyrogram import Client, filters 
 import os ,re , random ,shutil,asyncio ,pytesseract,requests  
@@ -25,7 +26,6 @@ bot = Client(
 #6709809460:AAGWWXJBNMF_4ohBNRS22Tg0Q3-vkm376Eo
 #6466415254:AAE_m_mYGHFuu3MT4T0qzqVCm0WvR4biYvM
 #6812722455:AAEjCb1ZwgBa8DZ4_wVNNjDZbe6EtQZOUxo
-imagedic = {}
 def merge_images1(file1, file2):
     
     image1 = Image.open(file1)
@@ -791,22 +791,22 @@ async def callback_query(CLIENT,CallbackQuery):
    os.remove(file_path)
    os.remove(mp3file)
   elif CallbackQuery.data == "imagestitch" :
-     imagedic[file_path] = filename
+     imagedic.append(file_path)
      await CallbackQuery.edit_message_text(text = PRESS_MERGE_IMAGE,reply_markup = InlineKeyboardMarkup(PRESS_MERGE_IMAGE_BUTTONS))
   elif CallbackQuery.data == "imagemergenow" :
           await CallbackQuery.edit_message_text(text = PRESS_MERGEMODE_IMAGE,reply_markup = InlineKeyboardMarkup(PRESS_MERGEMODE_IMAGE_BUTTONS))
   elif CallbackQuery.data == "sidebyside" :
      output_img = f"{nom}.jpg"
-     image1 = list(imagedic.keys())[0]
-     image2 = list(imagedic.keys())[1]
+     image1 = imagedic[0]
+     image2 = imagedic[1]
      merged = merge_images2( image1, image2 )
      merged.save(output_img) 
      await bot.send_photo(user_id,output_img)
      imagedic.clear()
   elif CallbackQuery.data == "updown" :
      output_img = f"{nom}.jpg"
-     image1 = list(imagedic.keys())[0]
-     image2 = list(imagedic.keys())[1]
+     image1 = imagedic[0]
+     image2 = imagedic[1]
      merged = merge_images1( image1, image2 )
      merged.save(output_img) 
      await bot.send_photo(user_id,output_img)
