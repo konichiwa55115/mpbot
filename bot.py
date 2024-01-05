@@ -1,5 +1,7 @@
-global temptxt,imagedic 
+global temptxt,imagedic,imagepdfdic
 imagedic = []
+imagepdfdic = []
+imagepdfdic1 = []
 temptxt = "res.txt"
 from pyrogram import Client, filters 
 import os ,re , random ,shutil,asyncio ,pytesseract,requests  
@@ -64,9 +66,9 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
-    [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines")],
+    [InlineKeyboardButton("صور إلى pdf",callback_data="imagetopdf"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines")],
     [InlineKeyboardButton("titled",callback_data="titled"),InlineKeyboardButton("ترقيع الصور",callback_data="imagestitch")],
-    [InlineKeyboardButton("صورة إلى gif",callback_data="imagetogif")]
+    [InlineKeyboardButton("صورة إلى gif",callback_data="imagetogif"),InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch")]
 ]
 
 PRESS_MERGE_IMAGE = "الآن أرسل الصورة الأخرى و اختر دمج الآن "
@@ -94,7 +96,10 @@ CHOOSE_UR_AMPLE_MODE_BUTTONS = [
      [InlineKeyboardButton("20db",callback_data="mod4")],
      [InlineKeyboardButton("25db",callback_data="mod5")]
 ]
-
+THE_LAST_IMAGE = "عند إرسال آخر صورة , اضغط تحويل الآن"
+THE_LAST_IMAGE_BUTTONS = [
+   [InlineKeyboardButton("تحويل الآن ",callback_data="convnow")]
+]
 
 CHOOSE_UR_VIDRES_MODE = "الآن اختر أبعادالناتج"
 CHOOSE_UR_VIDRES_MODE_BUTTONS = [
@@ -834,6 +839,27 @@ async def callback_query(CLIENT,CallbackQuery):
      os.remove(output_img)
   elif CallbackQuery.data == "imagetogif" :
       await nepho.reply_text("الآن أرسل مدة الفيديو بالثانية بهذه الصورة \n t=المدة",reply_markup=ForceReply(True))
+  elif CallbackQuery.data == "imagetopdf" :
+    imagepdfdic1.append(file_path)
+    global imagey
+    imagey = Image.open(imagepdfdic1[0]).convert('RGB')
+    if len(imagepdfdic1) > 1 :
+     image2 = Image.open(file_path).convert('RGB')
+     imagepdfdic.append(image2)
+    await CallbackQuery.edit_message_text(text = THE_LAST_IMAGE,reply_markup = InlineKeyboardMarkup(THE_LAST_IMAGE_BUTTONS))
+  elif CallbackQuery.data == "convnow" :
+    pdffile = f"{nom}.pdf"
+    imagey.save(pdffile,save_all=True, append_images=imagepdfdic)
+    await bot.send_document(user_id,pdffile)
+    os.remove(pdffile)
+    for x in range(0,len(imagepdfdic1)) :
+      os.remove(str(imagepdfdic1[x]))
+    imagepdfdic1.clear()
+    imagepdfdic.clear()
+
+
+
+
 
      
 @bot.on_message(filters.private & filters.reply & filters.regex("="))
