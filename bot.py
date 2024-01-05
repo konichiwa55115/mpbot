@@ -801,25 +801,40 @@ async def callback_query(CLIENT,CallbackQuery):
      image2 = str(imagedic[1])
      merged = merge_images2( image1, image2 )
      merged.save(output_img) 
+     if len(imagedic) > 2 :
+        for x in range(2,len(imagedic)) :
+          image1 = output_img
+          image2 = str(imagedic[x])
+          merged = merge_images2( image1, image2 )
+          merged.save(output_img) 
      await bot.send_photo(user_id,output_img)
+     for x in range(0,len(imagedic)) :
+      os.remove(str(imagedic[x]))
      imagedic.clear()
+     os.remove(output_img)
+
   elif CallbackQuery.data == "updown" :
      output_img = f"{nom}.jpg"
      image1 = imagedic[0]
      image2 = imagedic[1]
      merged = merge_images1( image1, image2 )
      merged.save(output_img) 
+     if len(imagedic) > 2 :
+        for x in range(2,len(imagedic)) :
+          image1 = output_img
+          image2 = str(imagedic[x])
+          merged = merge_images1( image1, image2 )
+          merged.save(output_img) 
+     else :
+        pass
      await bot.send_photo(user_id,output_img)
+     for x in range(0,len(imagedic)) :
+      os.remove(str(imagedic[x]))
      imagedic.clear()
+     os.remove(output_img)
   elif CallbackQuery.data == "imagetogif" :
       await nepho.reply_text("الآن أرسل مدة الفيديو بالثانية بهذه الصورة \n t=المدة",reply_markup=ForceReply(True))
 
-     
-     
-  
-
-     
-     
      
 @bot.on_message(filters.private & filters.reply & filters.regex("="))
 async def refunc(client,message):
@@ -836,8 +851,6 @@ async def refunc(client,message):
           os.remove(mp4file)
           os.remove(f"mod{mp4file}")
           os.remove(file_path)
-
-      
 
 @bot.on_message(filters.private & filters.reply & filters.regex('/'))
 async def refunc(client,message):
