@@ -812,7 +812,7 @@ async def callback_query(CLIENT,CallbackQuery):
           image2 = str(imagedic[x])
           merged = merge_images2( image1, image2 )
           merged.save(output_img) 
-     await bot.send_photo(user_id,output_img)
+     await bot.send_document(user_id,output_img)
      for x in range(0,len(imagedic)) :
       os.remove(str(imagedic[x]))
      imagedic.clear()
@@ -832,7 +832,7 @@ async def callback_query(CLIENT,CallbackQuery):
           merged.save(output_img) 
      else :
         pass
-     await bot.send_photo(user_id,output_img)
+     await bot.send_document(user_id,output_img)
      for x in range(0,len(imagedic)) :
       os.remove(str(imagedic[x]))
      imagedic.clear()
