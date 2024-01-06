@@ -19,6 +19,5 @@ pypdf
 PDFNetPython3
 PyPDF2
 yt-dlp
-python_docx
 
 
