@@ -765,7 +765,7 @@ async def callback_query(CLIENT,CallbackQuery):
   elif CallbackQuery.data == "upldarch":
       if user_id==6234365091 :
          await CallbackQuery.edit_message_text("جار الرفع")
-         cmd(f'''rclone copy '{file_path}' 'myarchive':"{bucketname}"''')
+         cmd(f'''rclone copy "{file_path}" 'myarchive':"{bucketname}"''')
          os.remove(file_path)
          await CallbackQuery.edit_message_text("تم الرفع")
       else :
