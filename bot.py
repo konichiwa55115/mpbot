@@ -348,7 +348,6 @@ def command2(bot,message):
        bot.send_document(upld_id,f)
 @bot.on_message(filters.command('clear') & filters.private)
 def command2(bot,message):
-    os.remove("list.txt")
     os.remove("ytplst.txt")
     os.remove("yttransy.txt")
     
