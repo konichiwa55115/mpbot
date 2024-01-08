@@ -215,12 +215,6 @@ def command20(bot,message):
        os.remove(audio)
 @bot.on_message(filters.command('yttransy') & filters.text & filters.private)
 def command4(bot,message):
-     try: 
-      with open('yttransy.txt', 'r') as fh:
-         message.reply_text("هناك تحميل يتم الآن ")
-         return
-     except FileNotFoundError: 
-      pass  
      url = message.text.split("yttransy ", maxsplit=1)[1]
      yttransyid = message.from_user.id
      cmd(f'''yt-dlp --flat-playlist -i --print-to-file url yttransy.txt {url}''')
@@ -250,12 +244,6 @@ def command4(bot,message):
      os.remove("yttransy.txt")
 @bot.on_message(filters.command('ytplst') & filters.text & filters.private)
 def command4(bot,message):
-     try: 
-      with open('ytplst.txt', 'r') as fh:
-         message.reply_text("هناك تحميل يتم الآن ")
-         return
-     except FileNotFoundError: 
-      pass  
      x = message.text.split(" ")[1]
      print(x)
      url = x.split(" ")[0]
