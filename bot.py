@@ -348,7 +348,9 @@ def command2(bot,message):
        bot.send_document(upld_id,f)
 @bot.on_message(filters.command('clear') & filters.private)
 def command2(bot,message):
-    cmd('''rm list.txt ''')
+    os.remove("list.txt")
+    os.remove("ytplst.txt")
+    os.remove("yttransy.txt")
     
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo | filters.animation )
 def _telegram_file(client, message):
