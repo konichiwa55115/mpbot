@@ -2,6 +2,7 @@ global temptxt,imagedic,imagepdfdic
 imagedic = []
 imagepdfdic = []
 imagepdfdic1 = []
+vidsrt = []
 temptxt = "res.txt"
 from pyrogram import Client, filters 
 import os ,re , random ,shutil,asyncio ,pytesseract,requests  
@@ -63,6 +64,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تفريغ صوتية",callback_data="transcribe"),InlineKeyboardButton("إزالة الصمت",callback_data="rmvsilence")],
     [InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs"),InlineKeyboardButton("كتم صوت الفيديو",callback_data="mute")],
     [InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid"),InlineKeyboardButton("تغيير أبعاد الفيديو ",callback_data="vidasp")],
+    [InlineKeyboardButton("دمج الترجمة مع الفيديو",callback_data="vidsrt")],
     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
@@ -845,6 +847,22 @@ async def callback_query(CLIENT,CallbackQuery):
       os.remove(str(imagepdfdic1[x]))
     imagepdfdic1.clear()
     imagepdfdic.clear()
+  elif CallbackQuery.data == "vidsrt" :
+     if len(vidsrt) == 0 or len(vidsrt) > 2 :
+        vidsrt.clear()
+        vidsrt.append(file_path)
+        await CallbackQuery.edit_message_text("الآن أرسل الفيديو")
+     elif len(vidsrt) == 1 : 
+        vidsrt.append(file_path)
+        subfile = vidsrt[0]
+        vidfile = vidsrt[1]
+        cmd(f'''ffmpeg -i "{vidfile}" -filter_complex subtitles='{subfile}' -c:a copy "{mp4file}"''')
+        await bot.send_video(user_id,mp4file)
+        os.remove(subfile)
+        os.remove(vidfile)
+
+
+     
 
 
 
