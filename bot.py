@@ -860,7 +860,7 @@ async def callback_query(CLIENT,CallbackQuery):
         await bot.send_video(user_id,mp4file)
         os.remove(subfile)
         os.remove(vidfile)
-
+        os.remove(mp4file)
 
      
 
