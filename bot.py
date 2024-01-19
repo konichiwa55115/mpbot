@@ -356,7 +356,11 @@ def command2(bot,message):
     os.remove("ytplst.txt")
     os.remove("yttransy.txt")
     shutil.rmtree("./mergy/")
+    shutil.rmtree("./vidmerge/")
+    shutil.rmtree("./vidmerge2/")
     shutil.rmtree("./downloads/")
+    audmergelist.clear()
+    vidmergelist.clear()
 
 queeq = []   
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo | filters.animation )
