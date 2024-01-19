@@ -926,7 +926,7 @@ async def _telegram_file(client, message):
      for x in range(0,len(vidmergelist)) :
       cmd('mkdir vidmerge2')
       mergeviditem = f"./vidmerge2/{random.randint(1,100)}.mp4"
-      cmd(f'''ffmpeg -y -i "{vidmergelist[x]}" -vf "setpts=1*PTS" -r 15 "{mergeviditem}"''')
+      cmd(f'''ffmpeg -y -i "{vidmergelist[x]}" -vf "setpts=1*PTS" -r 30 "{mergeviditem}"''')
       with open('vidlist.txt','a') as f:
        f.write(f'''file '{mergeviditem}' \n''')  
      shutil.rmtree("./vidmerge/") 
