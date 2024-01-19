@@ -70,9 +70,11 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("إعادة التسمية ",callback_data="renm"),InlineKeyboardButton("OCR صور",callback_data="OCR")],
     [InlineKeyboardButton("تفريغ pdf",callback_data="pdfOCR"),InlineKeyboardButton("ضغط pdf",callback_data="pdfcompress")],
     [InlineKeyboardButton("دمج pdf",callback_data="pdfmerge"),InlineKeyboardButton("قص pdf ",callback_data="pdftrim")],
-    [InlineKeyboardButton("صور إلى pdf",callback_data="imagetopdf"),InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines")],
-    [InlineKeyboardButton("titled",callback_data="titled"),InlineKeyboardButton("ترقيع الصور",callback_data="imagestitch")],
-    [InlineKeyboardButton("صورة إلى gif",callback_data="imagetogif"),InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch")]
+    [InlineKeyboardButton("صور إلى pdf",callback_data="imagetopdf"), InlineKeyboardButton("عكس pdf",callback_data="reversepdf")],
+    [InlineKeyboardButton("أزلة أسطر txt",callback_data="rmvlines"),InlineKeyboardButton("titled",callback_data="titled")],
+    [InlineKeyboardButton("ترقيع الصور",callback_data="imagestitch"),InlineKeyboardButton("صورة إلى gif",callback_data="imagetogif")],
+    [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch")]
+   
 ]
 
 PRESS_MERGE_IMAGE = "الآن أرسل الصورة الأخرى و اختر دمج الآن "
@@ -934,6 +936,48 @@ async def _telegram_file(client, message):
      shutil.rmtree("./data/")
      os.remove(mp4file)
      vidmergelist.clear()
+  elif  CallbackQuery.data == "reversepdf" :
+    await CallbackQuery.edit_message_text("جار العكس")
+    cmd('mkdir rvtemp')
+    pdf = pdfium.PdfDocument(f'{file_path}')
+    n_pages = len(pdf)
+    for page_number in range(n_pages):
+     page = pdf.get_page(page_number)
+     pil_image = page.render_topil(
+        scale=1,
+        rotation=0,
+        crop=(0, 0, 0, 0),
+        colour=(255, 255, 255, 255),
+        annotations=True,
+        greyscale=False,
+        optimise_mode=pdfium.OptimiseMode.NONE,
+    )
+     pil_image.save(f"./rvtemp/image_{page_number+1}.png")
+    os.remove(file_path)
+    rpdfpage = [] 
+    for x in range(1,n_pages+1):
+      page=f"./rvtemp/image_{x}.png"
+      rpdfpage.append(page)
+    rpdfpage.reverse()
+    imagey = Image.open(rpdfpage[0]).convert('RGB')
+    for x in range(1,len(rpdfpage)):
+     image2 = Image.open(rpdfpage[x]).convert('RGB')
+     imagepdfdic.append(image2)
+    pdffile = f"{nom}.pdf"
+    imagey.save(pdffile,save_all=True, append_images=imagepdfdic)
+    await bot.send_document(user_id,pdffile)
+    os.remove(pdffile)
+    shutil.rmtree("./rvtemp/")
+    imagepdfdic.clear()
+    rpdfpage.clear()
+
+
+
+    
+
+
+
+
      
      
 
