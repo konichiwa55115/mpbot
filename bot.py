@@ -431,7 +431,6 @@ async def _telegram_file(client, message):
         await CallbackQuery.edit_message_text("الآن أرسل الفيديو")
       elif (ex == ".mp3" or ex == ".m4a" or ex == ".ogg") and len(vidsubslist) == 1 :
        await CallbackQuery.edit_message_text("جار الإبدال ") 
-       print(vidsubslist[0])
        cmd(f'''ffmpeg -i "{vidsubslist[0]}" -i "{file_path}" -c:v copy -map 0:v:0 -map 1:a:0 "{mp4file}"''')
        await bot.send_video(user_id, mp4file)
        os.remove(file_path) 
