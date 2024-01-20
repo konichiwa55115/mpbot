@@ -1,4 +1,6 @@
 global temptxt,imagedic,imagepdfdic
+montaglist = []
+vidsubslist = []
 imagedic = []
 imagepdfdic = []
 imagepdfdic1 = []
@@ -187,12 +189,6 @@ CHOOSE_UR_CONV_MODE_BUTTONS = [
      [InlineKeyboardButton("تحويل صوتية/ فيديو إلى m4a",callback_data="audconvm4a")],
     [InlineKeyboardButton("تحويل فيديو إلى mp4 ",callback_data="vidconv")]
 ]
-CHOOSE_UR_SUBS_MODE = '''اختر ما يناسب'''
-CHOOSE_UR_SUBS_MODE_BUTTONS = [
-    [InlineKeyboardButton("هذا الفيديو",callback_data="thisisvid")], [InlineKeyboardButton("إبدال الآن",callback_data="subsnow")]]
-CHOOSE_UR_MON_MODE = '''اختر ما يناسب'''
-CHOOSE_UR_MON_MODE_BUTTONS = [
-    [InlineKeyboardButton("هذه الصورة",callback_data="thisisimage")], [InlineKeyboardButton("منتجة الآن",callback_data="montagnow")]]
 CHOOSE_UR_RESO_MODE = '''اختر ما يناسب'''
 CHOOSE_UR_RESO_MODE_BUTTONS = [
     [InlineKeyboardButton("فيديو اعتيادي",callback_data="normalvideo")], [InlineKeyboardButton("YT Short",callback_data="ytshort")]]
@@ -417,27 +413,64 @@ async def _telegram_file(client, message):
     await bot.send_audio(user_id, mp3file)
     os.remove(file_path) 
     os.remove(mp3file) 
-  elif  CallbackQuery.data == "thisisvid":
-     os.rename(file_path,"./downloads/subsvid.mp4")
-     await CallbackQuery.edit_message_text("الآن أرسل الصوت الجديد ثم اختر إبدال الآن") 
-  elif  CallbackQuery.data == "thisisimage":
-     os.rename(file_path,"./downloads/imagetovid.jpg")
-     await CallbackQuery.edit_message_text("الآن أرسل الصوت  ثم اختر منتجة الآن") 
-
+ 
   elif  CallbackQuery.data == "subs":
-     await CallbackQuery.edit_message_text(text = CHOOSE_UR_SUBS_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_SUBS_MODE_BUTTONS))
+      if (ex == ".mp4" or ex == ".mkv") and len(vidsubslist) == 0 :
+         vidsubslist.append(file_path)
+         await CallbackQuery.edit_message_text("الآن أرسل الصوتية")
+      elif (ex == ".mp4" or ex == ".mkv") and len(vidsubslist) == 1 :
+       await CallbackQuery.edit_message_text("جار الإبدال ") 
+       cmd(f'''ffmpeg -i "{file_path}" -i "{vidsubslist[0]}" -c:v copy -map 0:v:0 -map 1:a:0 "{mp4file}"''')
+       await bot.send_video(user_id, mp4file)
+       os.remove(file_path) 
+       os.remove(mp4file) 
+       os.remove(vidsubslist[0]) 
+       vidsubslist.clear()
+      elif (ex == ".mp3" or ex == ".m4a" or ex == ".ogg") and len(vidsubslist) == 0 :
+        vidsubslist.append(file_path)
+        await CallbackQuery.edit_message_text("الآن أرسل الفيديو")
+      elif (ex == ".mp3" or ex == ".m4a" or ex == ".ogg") and len(vidsubslist) == 1 :
+       await CallbackQuery.edit_message_text("جار الإبدال ") 
+       print(vidsubslist[0])
+       cmd(f'''ffmpeg -i "{vidsubslist[0]}" -i "{file_path}" -c:v copy -map 0:v:0 -map 1:a:0 "{mp4file}"''')
+       await bot.send_video(user_id, mp4file)
+       os.remove(file_path) 
+       os.remove(mp4file) 
+       os.remove(vidsubslist[0]) 
+       vidsubslist.clear()
+
+ 
   elif  CallbackQuery.data == "imagetovid":
-     await CallbackQuery.edit_message_text(text = CHOOSE_UR_MON_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_MON_MODE_BUTTONS))
-  elif  CallbackQuery.data == "subsnow":
-      await CallbackQuery.edit_message_text("جار الإبدال ") 
-      cmd(f'''ffmpeg -i "./downloads/subsvid.mp4" -i "{file_path}" -c:v copy -map 0:v:0 -map 1:a:0 "{mp4file}"''')
+     if (ex == ".png" or ex == ".jpg") and len(montaglist) == 0 :
+      montaglist.append(file_path)
+      await CallbackQuery.edit_message_text("الآن أرسل الصوتية") 
+     elif (ex == ".png" or ex == ".jpg") and len(montaglist) == 1 :
+      await CallbackQuery.edit_message_text("جار المنتجة") 
+      cmd(f'''ffmpeg -i "{montaglist[0]}" -q:a 0 -map a "{mp3file}" -y ''')
+      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "{file_path}" -i "{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
       await bot.send_video(user_id, mp4file)
       os.remove(file_path) 
-      os.remove(mp4file) 
-  elif  CallbackQuery.data == "montagnow":
-      global thisismontagaudio
-      thisismontagaudio = file_path
-      await CallbackQuery.edit_message_text(text = CHOOSE_UR_RESO_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_RESO_MODE_BUTTONS))
+      os.remove(mp4file)
+      os.remove(mp3file) 
+      os.remove(montaglist[0]) 
+      montaglist.clear()
+     elif (ex == ".mp3" or ex == ".m4a" or ex == ".ogg") and len(montaglist) == 0 :
+      montaglist.append(file_path)
+      print(len(montaglist))
+      await CallbackQuery.edit_message_text("الآن أرسل الصورة") 
+     elif (ex == ".mp3" or ex == ".m4a" or ex == ".ogg") and len(montaglist) == 1 :
+      await CallbackQuery.edit_message_text("جار المنتجة") 
+      cmd(f'''ffmpeg -i "{file_path}" -q:a 0 -map a "{mp3file}" -y ''')
+      cmd(f'''ffmpeg -r 1 -loop 1 -y -i  "{montaglist[0]}" -i "{mp3file}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=1920:1080 "{mp4file}"''')
+      await bot.send_video(user_id, mp4file)
+      os.remove(file_path) 
+      os.remove(mp4file)
+      os.remove(mp3file) 
+      os.remove(montaglist[0])
+      montaglist.clear()
+
+
+ 
   elif CallbackQuery.data == "normalvideo":
       await CallbackQuery.edit_message_text("جار المنتجة ") 
       cmd(f'''ffmpeg -i "{thisismontagaudio}" -q:a 0 -map a "./downloads/temp{mp3file}" -y ''')
@@ -882,19 +915,34 @@ async def _telegram_file(client, message):
     imagepdfdic1.clear()
     imagepdfdic.clear()
   elif CallbackQuery.data == "vidsrt" :
-     if len(vidsrt) == 0 or len(vidsrt) > 2 :
+     if (len(vidsrt) == 0 or len(vidsrt) > 2 ) and (ex == ".ass" or ex == ".srt") :
         vidsrt.clear()
         vidsrt.append(file_path)
         await CallbackQuery.edit_message_text("الآن أرسل الفيديو")
-     elif len(vidsrt) == 1 : 
+     elif (len(vidsrt) == 0 or len(vidsrt) > 2 ) and (ex == ".mp4" or ex == ".mkv") :
+        vidsrt.clear()
         vidsrt.append(file_path)
+        await CallbackQuery.edit_message_text("الآن أرسل ملف الترجمة")
+
+     elif (len(vidsrt) == 1) and (ex == ".mp4" or ex == ".mkv") :  
         subfile = vidsrt[0]
-        vidfile = vidsrt[1]
+        vidfile = file_path
         cmd(f'''ffmpeg -i "{vidfile}" -filter_complex subtitles='{subfile}' -c:a copy "{mp4file}"''')
         await bot.send_video(user_id,mp4file)
         os.remove(subfile)
         os.remove(vidfile)
         os.remove(mp4file)
+        vidsrt.clear()
+     elif (len(vidsrt) == 1) and (ex == ".ass" or ex == ".srt") : 
+        subfile = file_path
+        vidfile = vidsrt[0]
+        cmd(f'''ffmpeg -i "{vidfile}" -filter_complex subtitles='{subfile}' -c:a copy "{mp4file}"''')
+        await bot.send_video(user_id,mp4file)
+        os.remove(subfile)
+        os.remove(vidfile)
+        os.remove(mp4file)
+        vidsrt.clear()
+
   elif CallbackQuery.data == "normaltrim" :
          await CallbackQuery.edit_message_text(text = CHOOSE_UR_FILETRIM_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_FILETRIM_MODE_BUTTONS))
   elif CallbackQuery.data == "reversetrim" :
