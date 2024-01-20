@@ -359,6 +359,8 @@ def command2(bot,message):
     shutil.rmtree("./downloads/")
     audmergelist.clear()
     vidmergelist.clear()
+    vidsubslist.clear()
+
 
 queeq = []   
 @bot.on_message(filters.private & filters.incoming & filters.voice | filters.audio | filters.video | filters.document | filters.photo | filters.animation )
