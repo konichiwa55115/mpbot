@@ -26,7 +26,7 @@ bot = Client(
     "audiobot",
     api_id=17983098,
     api_hash="ee28199396e0925f1f44d945ac174f64",
-    bot_token="5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E"
+    bot_token="6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI "
 )
 #6032076608:AAGhqffAlibHd7pipzA3HR2-0Ca3sDFlmdI 
 #5782497998:AAFdx2dX3yeiyDIcoJwPa_ghY2h_dozEh_E
@@ -1099,8 +1099,6 @@ async def _telegram_file(client, message):
     if ex == ".zip":
      with ZipFile(file_path, 'r') as zObject: 
       zObject.extractall(path=unzippath) 
-    elif ex == ".rar":
-      cmd(f'''unrar e -y "{file_path}" "{unzippath}" ''')
     files = os.listdir(unzippath)
     for x in range(0,len(files)):
       sentfile = f"{unzippath}{files[x]}"
