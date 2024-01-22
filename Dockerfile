@@ -6,7 +6,7 @@ FROM python:3.9-buster
 
 # Installing Packages
 RUN apt update && apt upgrade -y
-RUN apt install git curl python3-pip ffmpeg imagemagick poppler-utils -y
+RUN apt install git curl python3-pip ffmpeg imagemagick poppler-utils p7zip-full p7zip-rar -y
 RUN apt install curl -y
 RUN curl https://rclone.org/install.sh | bash 
 COPY rclone.conf /root/.config/rclone/
