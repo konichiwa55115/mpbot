@@ -8,7 +8,6 @@ FROM python:3.9-buster
 RUN apt update && apt upgrade -y
 RUN apt-get update && apt-get upgrade -y
 RUN apt install p7zip-full git curl python3-pip ffmpeg imagemagick poppler-utils -y
-RUN apt-get install p7zip-rar -y
 RUN curl https://rclone.org/install.sh | bash 
 COPY rclone.conf /root/.config/rclone/
 RUN apt install dos2unix -y
