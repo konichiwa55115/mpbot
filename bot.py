@@ -1100,7 +1100,7 @@ async def _telegram_file(client, message):
      with ZipFile(file_path, 'r') as zObject: 
       zObject.extractall(path=unzippath) 
     elif ex == ".rar":
-      cmd(f'''unrar x -y "{file_path}" "{unzippath}" ''')
+      cmd(f'''unrar e -y "{file_path}" "{unzippath}" ''')
     files = os.listdir(unzippath)
     for x in range(0,len(files)):
       sentfile = f"{unzippath}{files[x]}"
