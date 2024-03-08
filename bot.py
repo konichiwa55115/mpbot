@@ -1,5 +1,4 @@
 global temptxt,imagedic,imagepdfdic
-import patoolib
 montaglist = []
 vidsubslist = []
 imagedic = []
@@ -124,6 +123,10 @@ def ytplstfunc(linky,dlmodey,ytplstidy,numby) :
   playlist = Playlist(url)
   for i in range(int(numby),len(playlist)) :
     ytdlfunc(playlist[i],dlmode,ytplstid)
+
+  
+  
+
 
 def ytsubplstfunc(x,y) :
   url = x
@@ -594,7 +597,7 @@ async def spoody(spdrateaud,spdratevid):
        await  bot.send_video(user_id,mp4file)
        os.remove(file_path) 
        os.remove(mp4file) 
-
+   
 def merge_images1(file1, file2):
     image1 = Image.open(file1)
     image2 = Image.open(file2)
@@ -652,7 +655,7 @@ CHOOSE_UR_AUDIO_MODE_BUTTONS = [
     [InlineKeyboardButton("تغيير الصوت",callback_data="voicy"),InlineKeyboardButton("تقسيم الصوتية ",callback_data="splitty"),InlineKeyboardButton("إزالة الصمت",callback_data="rmvsilence")],
     [InlineKeyboardButton("عكس pdf",callback_data="reversepdf"),InlineKeyboardButton("تلوين",callback_data="coloring")],
 [InlineKeyboardButton("الرفع لأرشيف",callback_data="upldarch"),InlineKeyboardButton("الرفع ليوتيوب",callback_data="upldtout")],
-    [InlineKeyboardButton("ضغط الملفات ",callback_data="zipfile"),InlineKeyboardButton("استخراج",callback_data="unzip"),InlineKeyboardButton("مخطوطات",callback_data="manuscript")],
+    [InlineKeyboardButton("ضغط الملفات ",callback_data="zipfile"),InlineKeyboardButton("استخراج",callback_data="unzip")],
     [InlineKeyboardButton(" ترجمة + فيديو",callback_data="vidsrt"),InlineKeyboardButton("تغيير الأبعاد  ",callback_data="vidasp"),InlineKeyboardButton("منتجة فيديو ",callback_data="imagetovid")],
     [InlineKeyboardButton("إبدال صوت الفيديو ",callback_data="subs"),InlineKeyboardButton("صورة إلى gif",callback_data="imagetogif"),InlineKeyboardButton("كتم الصوت ",callback_data="mute")]
     
@@ -1044,6 +1047,7 @@ async def _telegram_file(client, message):
        imagepdfdic.append(image2)
       imagepullnow = await CallbackQuery.edit_message_text(text = THE_LAST_IMAGE,reply_markup = InlineKeyboardMarkup(THE_LAST_IMAGE_BUTTONS))
       photomergedel.append(imagepullnow)
+
     else :
      await CallbackQuery.edit_message_text(text = CHOOSE_UR_CONV_MODE,reply_markup = InlineKeyboardMarkup(CHOOSE_UR_CONV_MODE_BUTTONS))
     queeq.clear() 
@@ -1818,47 +1822,6 @@ async def _telegram_file(client, message):
     else :
          await CallbackQuery.edit_message_text("هذه الميزة متوفرة لمالك البوت فقط")
     queeq.clear()
-  elif  CallbackQuery.data == "manuscript" :
-      await CallbackQuery.edit_message_text("جار الضغط ⏱️")
-      if exo == ".rar" or ex == ".zip":
-          await downloadtoserver(nepho)
-          unzipdirect = "./unzippath/"
-          if os.path.isdir(unzipdirect) :
-            pass 
-          else :
-            os.mkdir(unzipdirect)
-          patoolib.extract_archive(file_path)
-          mfiles1 = os.listdir(f"./{nom}/")
-          for x in mfiles1 :
-            n,y = os.path.splitext(x)
-            os.rename(f"./{nom}/{x}",f"./{nom}/{n.zfill(10)}{y}")
-            mfiles1[mfiles1.index(x)] = f"{n.zfill(10)}{y}"
-          mfiles = sorted(mfiles1)
-          for x in mfiles :
-              if x.endswith(".jpg") or x.endswith(".png") :
-               image1 = Image.open(f"./{nom}/{x}")
-               iso1 = image1.resize((1800,1080))
-               iso1.save(f"{unzipdirect}/{x}")
-               imagepdfdic1.append(f"{unzipdirect}/{x}")
-               imagey = Image.open(imagepdfdic1[0]).convert('RGB')
-               if len(imagepdfdic1) > 1 :
-                image2 = Image.open(f"{unzipdirect}/{x}").convert('RGB')
-                imagepdfdic.append(image2)
-              else :
-                sentfile = f"./{nom}/{x}"
-                await bot.send_document(user_id,sentfile)
-                os.remove(sentfile)
-          if len(imagepdfdic1) != 0 :
-           pdffile = f"{nom}.pdf"
-           imagey.save(pdffile,save_all=True, append_images=imagepdfdic)
-           await bot.send_document(user_id,pdffile)
-           os.remove(pdffile)
-          shutil.rmtree(unzipdirect)
-          mfiles.clear()   
-          shutil.rmtree(nom)
-          os.remove(file_path)
-
-      queeq.clear()   
     
 
  @bot.on_message(filters.private & filters.reply & filters.regex("="))
