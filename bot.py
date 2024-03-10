@@ -19,6 +19,8 @@ pdfmergedel = []
 temptxt = "res.txt"
 import tika
 tika.initVM()
+import urllib3 
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from tika import parser
 from pytube import Playlist
 from oauth2client.file import Storage
