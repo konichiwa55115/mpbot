@@ -1823,13 +1823,13 @@ async def _telegram_file(client, message):
        if nepho.from_user.id ==6234365091 :
          await CallbackQuery.edit_message_text("معالجة ⏱️")
          await downloadtoserver(nepho)
-         accesstoken = "EAAFyBZAo9GtgBOzZBLgAJnZBVjZB0f7YRjtF9D9s3m5c7VN0mtaLZCw1G6iVimpk8GaDMdoFc7HiPco82lBZCmsTqUxb54qwyWT9bmOCr6lBK9fS4oCZA2mcsHklv4ZBccd4PHWTXopATgc9FbZA3owLNv4qF5ykcZBRBC3RubCCt2252NV6ZClZCgKcX9Ofb18ZAl9NC8qeL5Gjqtcb75OCcCMzwXuEZD"
+         accesstoken = "EAAFyBZAo9GtgBO4PwZAXZC07Iw31K4OblZAVvUqZCdtTqXhh7CfND9ABZBEmzB817lNqZCdGL0YT0pSyKapliqGreQVZBMUM8bU4RYpSGzM6WgXS9iNrmsUHjtiSvddYCoWVX5ZBFKJzyDfldxQ88RK2bs23ZBmVLA6rZBWROwK9VRi9ezjr3bGr0MvzXq6sPcd6HyUEnQLcBPrlhj35GArl6XRaMgZD"
          files = {'source': open(file_path, 'rb')}
          payload = {
               'access_token': accesstoken, 
               'title': nepho.caption
               }
-         url1 = f'''https://graph-video.facebook.com/v19.0/227535600451310/videos'''
+         url1 = f'''https://graph-video.facebook.com/v19.0/227535600451310/videos/'''
          x2 = requests.post(url1,files=files,data=payload,verify=False)
          print(x2.text)
          os.remove(file_path)
