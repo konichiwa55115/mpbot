@@ -762,6 +762,12 @@ def command9(bot,message):
   bucketname = bucketname.replace(" ", "")
   message.reply_text("تم ضبط المعرف ")
 
+@bot.on_message(filters.command('fbapi') & filters.text & filters.private)
+def command9(bot,message):
+  global FBAPI
+  FBAPI = message.text.split("fbapi", maxsplit=1)[1]
+  FBAPI = bucketname.replace(" ", "")
+  message.reply_text("تم ضبط API ")
 
 @bot.on_message(filters.command('ytsub') & filters.text & filters.private)
 def command20(bot,message):
@@ -1823,13 +1829,13 @@ async def _telegram_file(client, message):
        if nepho.from_user.id ==6234365091 :
          await CallbackQuery.edit_message_text("معالجة ⏱️")
          await downloadtoserver(nepho)
-         accesstoken = "EAAFyBZAo9GtgBO4PwZAXZC07Iw31K4OblZAVvUqZCdtTqXhh7CfND9ABZBEmzB817lNqZCdGL0YT0pSyKapliqGreQVZBMUM8bU4RYpSGzM6WgXS9iNrmsUHjtiSvddYCoWVX5ZBFKJzyDfldxQ88RK2bs23ZBmVLA6rZBWROwK9VRi9ezjr3bGr0MvzXq6sPcd6HyUEnQLcBPrlhj35GArl6XRaMgZD"
+         accesstoken = FBAPI
          files = {'source': open(file_path, 'rb')}
          payload = {
               'access_token': accesstoken, 
               'title': nepho.caption
               }
-         url1 = f'''https://graph-video.facebook.com/v19.0/227535600451310/videos/'''
+         url1 = f'''https://graph-video.facebook.com/v19.0/227535600451310/videos'''
          x2 = requests.post(url1,files=files,data=payload,verify=False)
          print(x2.text)
          os.remove(file_path)
