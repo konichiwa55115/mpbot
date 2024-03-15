@@ -1430,7 +1430,12 @@ async def _telegram_file(client, message):
       queeq.clear()
 
   elif CallbackQuery.data == "imagemergenow" :
-          await CallbackQuery.edit_message_text(text = PRESS_MERGEMODE_IMAGE,reply_markup = InlineKeyboardMarkup(PRESS_MERGEMODE_IMAGE_BUTTONS))
+     if len(imagedic) < 2 :
+        await CallbackQuery.edit_message_text("لقد أرسلت صورة واحدة فقط !")
+        return
+     else :
+         pass
+     await CallbackQuery.edit_message_text(text = PRESS_MERGEMODE_IMAGE,reply_markup = InlineKeyboardMarkup(PRESS_MERGEMODE_IMAGE_BUTTONS))
   elif CallbackQuery.data == "sidebyside" :
      await CallbackQuery.edit_message_text("جار الدمج")
      for x in range(0,len(imagedic)):
